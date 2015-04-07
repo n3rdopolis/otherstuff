@@ -95,7 +95,7 @@ do
     print -u $CLIENT_FDNUMBER "ServerReply to client $CLIENT_FDNUMBER" 2>/dev/null
   done
   echo "-------"
-  read -t 1
+  sleep 1
 done
 
 
