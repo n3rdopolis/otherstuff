@@ -16,5 +16,5 @@ do
     echo "Server quit. Exiting."
     exit
   fi
-  sleep 3
+  read -t 1
 done

@@ -13,6 +13,6 @@ do
   print -u $SOCKETFD ClientSend$1 2>/dev/null
   read -t -u $SOCKETFD
   print "Server sent: $REPLY"
-  sleep 1
+  read -t 1
 done
 #DETECT BAD SOCKET
