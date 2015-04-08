@@ -16,12 +16,18 @@ function fdcleanup
       exec {TESTFD}>&-
     fi
   done
-  CLIENT_FDS=()
-  NUMBEROFCLIENT_FDS=${#NEWCLIENT_FDS[@]}
-  for (( newarray_iterator=1; newarray_iterator<=$NUMBEROFCLIENT_FDS; newarray_iterator++ ))
+
+  NEWTRUSTEDCLIENT_FDS=()
+  NUMBEROFTRUSTEDCLIENT_FDS=${#TRUSTEDCLIENT_FDS[@]}
+  for (( trusted_iterator=1; trusted_iterator<=$NUMBEROFCLIENT_FDS; trusted_iterator++ ))
   do
-    CLIENT_FDS+=${NEWCLIENT_FDS[$newarray_iterator]}
+    TESTFD=${TRUSTEDCLIENT_FDS[$trusted_iterator]}
+    if [[ $TESTFD != $CLIENT_FDNUMBER ]]
+    then
+      NEWTRUSTEDCLIENT_FDS+=($TESTFD)
+    fi
   done
+  REFRESHARRAY=1
 }
 
 function StartTrustedClient
@@ -96,6 +102,12 @@ do
   done
   echo "-------"
   sleep 1
+  if [[ $REFRESHARRAY == 1 ]]
+  then
+    TRUSTEDCLIENT_FDS=( ${NEWTRUSTEDCLIENT_FDS[@]} )
+    CLIENT_FDS=( ${NEWCLIENT_FDS[@]} )
+    REFRESHARRAY=0
+  fi
 done
 
 
