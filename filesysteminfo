@@ -1,0 +1,97 @@
+#! /bin/bash
+
+#Get if root is a mountpont
+mountpoint . -q
+ISROOTMOUNT=$?
+
+#Handle choots
+if [[ $ISROOTMOUNT != 0 ]]
+then
+  echo "/ is not a mountpoint. Is / a chroot? Try to bindmount the chroot path onto itself"
+  exit
+fi
+INITROOTFS=$(findmnt -vUrno FSROOT -N1 /)
+THISROOTFS=$(findmnt -vUrno FSROOT /)
+if [[ "$INITROOTFS" != "$THISROOTFS" ]]
+then
+  REPLACESTRING="$THISROOTFS"
+else
+  REPLACESTRING=/
+fi
+
+
+function getfilesysteminfo
+{
+unset DONE1FSES
+ROOTFSROOT=/ #$(findmnt -vUrno FSROOT /)
+FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
+FSES=${FSES//MAJ:MIN/MAJ_MIN}
+while read SEARCH1FS
+do
+  HASBINDS=0
+  unset DONE2FSES
+  eval "$SEARCH1FS"
+  SEARCH1SOURCE=$SOURCE
+  SEARCH1FSROOT=$FSROOT
+  SEARCH1TARGET=$TARGET
+  SEARCH1MAJMIN=$MAJ_MIN
+  
+  FS1WASHANDLED=0
+  while read DONE1FS 
+  do
+    if [[ $DONE1FS == $MAJ_MIN ]]
+    then
+      FS1WASHANDLED=1
+      break
+    fi
+  done < <(echo "$DONE1FSES")
+
+  
+  if [[ ($SEARCH1FSROOT == "$ROOTFSROOT") && ($FS1WASHANDLED == 0) ]]
+  then
+  DONE1FSES+=$MAJ_MIN$'\n'
+  while read SEARCH2FS
+  do
+    eval "$SEARCH2FS"
+    SEARCH2SOURCE=$SOURCE
+    SEARCH2FSROOT=$FSROOT
+    SEARCH2TARGET=$TARGET
+    SEARCH2MAJMIN=$MAJ_MIN
+
+    FS2WASHANDLED=0
+    while read DONE2FS 
+    do
+      if [[ $DONE2FS == $SEARCH2FS ]]
+      then
+        FS2WASHANDLED=1
+        break
+      fi
+    done < <(echo "$DONE2FSES")
+    if [[ $1 == 1 ]]
+    then
+      if [[ ($SEARCH1MAJMIN == $SEARCH2MAJMIN)  && ($SEARCH1TARGET != $SEARCH2TARGET )  && ($FS2WASHANDLED == 0 ) ]]
+      then
+        if [[ $SEARCH1TARGET == "$ROOTFSROOT" ]]
+        then
+          SEARCH1TARGET=""
+        fi
+        DONE2FSES+=$SEARCH2FS$'\n'
+        echo "BINDSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" BINDDEST=\"$SEARCH2TARGET\""
+      fi
+    fi
+    
+    if [[ $1 == 0 ]]
+    then
+      if [[ ($FS2WASHANDLED == 0) && ($SEARCH1TARGET == $SEARCH2TARGET ) ]]
+      then
+        echo "DEST=\"$SEARCH2TARGET\""
+      fi
+    fi
+  done < <(echo "$FSES")
+
+  fi
+done   < <(echo "$FSES") | sort -k1,1
+}
+
+getfilesysteminfo 0
+getfilesysteminfo 1
