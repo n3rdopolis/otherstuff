@@ -75,7 +75,7 @@ do
           SEARCH1TARGET=""
         fi
         DONE2FSES+="$SEARCH2FS"$'\n'
-        echo "BINDSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" BINDDEST=\"$SEARCH2TARGET\""
+        echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\""
       fi
     fi
     
@@ -86,15 +86,30 @@ do
         DEVREGEX="/dev(/|)"; TMPREGEX="/tmp(/|)"; PROCREGEX="/proc(/|)"; RUNREGEX="/run(/|)"; SYSREGEX="/sys(/|)"
         if [[ (! "$SEARCH2TARGET" =~ $DEVREGEX) && (! "$SEARCH2TARGET" =~ $TMPREGEX) && (! "$SEARCH2TARGET" =~ $PROCREGEX) && (! "$SEARCH2TARGET" =~ $RUNREGEX) && (! "$SEARCH2TARGET" =~ $SYSREGEX) ]]
         then
-          echo "DEST=\"$SEARCH2TARGET\""
+          echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\""
         fi
       fi
     fi
   done
 
   fi
-done | sort -k1,1
+done | sort -k2,2
 }
 
-getfilesysteminfo 0
-getfilesysteminfo 1
+NONBINDS=$(getfilesysteminfo 0)
+BINDS=$(getfilesysteminfo 1)
+BINDSREVERSED=$(echo "$BINDS" | sort -r -k 2,2)
+
+echo "NONBINDS
+$NONBINDS
+
+"
+
+echo "BINDS
+$BINDS
+
+"
+
+echo "BINDSREVERSED
+$BINDSREVERSED
+"
