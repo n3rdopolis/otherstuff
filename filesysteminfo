@@ -20,6 +20,8 @@ fi
 FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
+EXCLUDES=(/proc /sys /dev/ /run)
+
 function getfilesysteminfo
 {
 unset DONE1FSES
@@ -52,6 +54,7 @@ do
   IFS=$'\n'
   for SEARCH2FS in $FSES
   do
+    TARGETEXCLUDED=0
     eval "$SEARCH2FS"
     SEARCH2SOURCE=$SOURCE
     SEARCH2FSROOT=$FSROOT
@@ -66,8 +69,18 @@ do
         break
       fi
     done
-    DEVREGEX="/dev(/|)"; TMPREGEX="/tmp(/|)"; PROCREGEX="/proc(/|)"; RUNREGEX="/run(/|)"; SYSREGEX="/sys(/|)"
-    if [[ (! "$SEARCH2TARGET" =~ $DEVREGEX) && (! "$SEARCH2TARGET" =~ $TMPREGEX) && (! "$SEARCH2TARGET" =~ $PROCREGEX) && (! "$SEARCH2TARGET" =~ $RUNREGEX) && (! "$SEARCH2TARGET" =~ $SYSREGEX) ]]
+
+    for EXCLUDE in ${EXCLUDES[@]}
+    do
+      EXCLUDEREGEX="$EXCLUDE(/|)"
+      if [[ "$SEARCH2TARGET" =~ $EXCLUDEREGEX ]]
+      then
+        TARGETEXCLUDED=1
+        break
+      fi
+    done
+    
+    if [[ $TARGETEXCLUDED == 0 ]]
     then
       if [[ $1 == 1 ]]
       then
