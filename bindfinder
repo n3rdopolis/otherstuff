@@ -19,6 +19,8 @@ else
   REPLACESTRING=/
 fi
 
+
+
 unset DONE1FSES
 ROOTFSROOT=/ #$(findmnt -vUrno FSROOT /)
 FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
@@ -73,7 +75,9 @@ do
       fi
       DONE2FSES+=$SEARCH2FS$'\n'
       echo "BINDSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" BINDDEST=\"$SEARCH2TARGET\""
-
+    elif [[ ($FS2WASHANDLED == 0) && ($SEARCH1TARGET == $SEARCH2TARGET ) ]]
+    then
+      echo "$SEARCH2TARGET"
     fi
    
   done < <(echo "$FSES")
