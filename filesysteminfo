@@ -20,12 +20,12 @@ fi
 FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
-EXCLUDES=(/proc /sys /dev /run)
+EXCLUDES=(/proc /sys /dev /run /tmp)
 
 function getfilesysteminfo
 {
 unset DONE1FSES
-ROOTFSROOT=/ #$(findmnt -vUrno FSROOT /)
+ROOTFSROOT=/
 IFS=$'\n'
 for SEARCH1FS in $FSES
 do
@@ -111,7 +111,7 @@ done | sort -k2,2
 
 NONBINDS=$(getfilesysteminfo 0)
 BINDS=$(getfilesysteminfo 1)
-BINDSREVERSED=$(echo "$BINDS" | sort -r -k 2,2)
+
 
 echo "NONBINDS
 $NONBINDS
@@ -120,9 +120,4 @@ $NONBINDS
 
 echo "BINDS
 $BINDS
-
-"
-
-echo "BINDSREVERSED
-$BINDSREVERSED
 "
