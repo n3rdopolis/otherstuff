@@ -20,7 +20,7 @@ fi
 FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
-EXCLUDES=(/proc /sys /dev/ /run)
+EXCLUDES=(/proc /sys /dev /run)
 
 function getfilesysteminfo
 {
@@ -79,7 +79,7 @@ do
         break
       fi
     done
-    
+
     if [[ $TARGETEXCLUDED == 0 ]]
     then
       if [[ $1 == 1 ]]
@@ -94,7 +94,7 @@ do
           echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\""
         fi
       fi
-    
+
       if [[ $1 == 0 ]]
       then
         if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
