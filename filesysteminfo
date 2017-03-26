@@ -17,7 +17,7 @@ then
 else
   REPLACESTRING=/
 fi
-FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,SOURCE  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" |sort -k1,1 -k2,2 -k3,3)
+FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" | sort -k4,4n --stable -k 1,1 -k2,2)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
 EXCLUDES=(/proc /sys /dev /run /tmp)
@@ -32,7 +32,7 @@ do
   HASBINDS=0
   unset DONE2FSES
   eval "$SEARCH1FS"
-  SEARCH1SOURCE="$SOURCE"
+  SEARCH1ID="$ID"
   SEARCH1FSROOT="$FSROOT"
   SEARCH1TARGET="$TARGET"
   SEARCH1MAJMIN="$MAJ_MIN"
@@ -56,7 +56,7 @@ do
   do
     TARGETEXCLUDED=0
     eval "$SEARCH2FS"
-    SEARCH2SOURCE=$SOURCE
+    SEARCH2ID=$ID
     SEARCH2FSROOT=$FSROOT
     SEARCH2TARGET=$TARGET
     SEARCH2MAJMIN=$MAJ_MIN
@@ -72,7 +72,7 @@ do
 
     for EXCLUDE in ${EXCLUDES[@]}
     do
-      EXCLUDEREGEX="$EXCLUDE(/|)"
+      EXCLUDEREGEX="^$EXCLUDE(/|)"
       if [[ "$SEARCH2TARGET" =~ $EXCLUDEREGEX ]]
       then
         TARGETEXCLUDED=1
@@ -88,26 +88,23 @@ do
         SEARCH1TARGET=""
       fi
       DONE2FSES+="$SEARCH2FS"$'\n'
-      if [[ $TARGETEXCLUDED == 0 ]]
-      then
-        echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""
-      fi
+      echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""
     fi
 
     if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
     then
       if [[ $TARGETEXCLUDED == 0 ]]
       then
-        echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""
+        echo "MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""
       else
-        echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""
+        echo "MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""
       fi
     fi
 
   done
 
   fi
-done | sort -k2,2 -k3,3 -k4,4
+done | sort -k3,3 -k2,2 -k4,4
 }
 
 ALLFSES=$(getfilesysteminfo 0)
