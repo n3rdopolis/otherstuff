@@ -80,44 +80,41 @@ do
       fi
     done
 
-    if [[ $TARGETEXCLUDED == 0 ]]
-    then
-      if [[ $1 == 1 ]]
-      then
-        if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN")  && ("$SEARCH1TARGET" != "$SEARCH2TARGET" )  && ("$FS2WASHANDLED" == 0 ) ]]
-        then
-          if [[ "$SEARCH1TARGET" == "$ROOTFSROOT" ]]
-          then
-            SEARCH1TARGET=""
-          fi
-          DONE2FSES+="$SEARCH2FS"$'\n'
-          echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\""
-        fi
-      fi
 
-      if [[ $1 == 0 ]]
+    if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN")  && ("$SEARCH1TARGET" != "$SEARCH2TARGET" )  && ("$FS2WASHANDLED" == 0 ) ]]
+    then
+      if [[ "$SEARCH1TARGET" == "$ROOTFSROOT" ]]
       then
-        if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
-        then
-          echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\""
-        fi
+        SEARCH1TARGET=""
+      fi
+      DONE2FSES+="$SEARCH2FS"$'\n'
+      if [[ $TARGETEXCLUDED == 0 ]]
+      then
+        echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""
       fi
     fi
+
+    if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
+    then
+      if [[ $TARGETEXCLUDED == 0 ]]
+      then
+        echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""
+      else
+        echo "MOUNTSOURCE=\"\" DEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""
+      fi
+    fi
+
   done
 
   fi
-done | sort -k2,2
+done | sort -k2,2 -k3,3 -k4,4
 }
 
-NONBINDS=$(getfilesysteminfo 0)
+ALLFSES=$(getfilesysteminfo 0)
 BINDS=$(getfilesysteminfo 1)
 
 
-echo "NONBINDS
-$NONBINDS
+echo "filesystems:
+$ALLFSES
 
-"
-
-echo "BINDS
-$BINDS
 "
