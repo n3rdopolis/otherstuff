@@ -107,8 +107,7 @@ do
 done | sort -k3,3 -k2,2 -k4,4
 }
 
-ALLFSES=$(getfilesysteminfo 0)
-BINDS=$(getfilesysteminfo 1)
+ALLFSES=$(getfilesysteminfo)
 
 
 echo "filesystems:
