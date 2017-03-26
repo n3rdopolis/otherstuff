@@ -24,6 +24,12 @@ FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
 EXCLUDES=(/proc /sys /dev /run /tmp)
 
+OUTSTR=""
+
+BINDISFILE=0
+FSCANTOVERLAY=0
+
+
 unset DONE1FSES
 ROOTFSROOT=/
 IFS=$'\n'
@@ -88,24 +94,44 @@ do
         SEARCH1TARGET=""
       fi
       DONE2FSES+="$SEARCH2FS"$'\n'
-      echo "MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""
+      if [[ -f $SEARCH2TARGET ]]
+      then
+        >&2 echo "$SEARCH2TARGET is a bind mounted file"
+        BINDISFILE=1
+      fi
+      OUTSTR+="MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""$'\n'
     fi
 
     if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
     then
       if [[ $TARGETEXCLUDED == 0 ]]
       then
-        echo "MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""
+        # TODO detect if overlayfs not supported
+        if [[ "" ]]
+        then
+          >&2 echo "$SEARCH2TARGET is not supported by overlayfs"
+          FSCANTOVERLAY=1
+        fi
+        OUTSTR+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""$'\n'
       else
-        echo "MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""
+        OUTSTR+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""$'\n'
       fi
     fi
 
   done
 
   fi
-done | sort -k3,3 -k2,2 -k4,4
+done
+
+if [[ $FSCANTOVERLAY == 1 || $BINDISFILE == 1 ]]
+then
+  exit 1
+else
+  echo "$OUTSTR" | sort -k3,3 -k2,2 -k4,4
+fi
 }
+
+
 
 ALLFSES=$(getfilesysteminfo)
 
