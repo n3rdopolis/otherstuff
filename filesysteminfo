@@ -1,4 +1,6 @@
 #! /bin/bash
+function getfilesysteminfo
+{
 #Get if root is a mountpont
 mountpoint / -q
 ISROOTMOUNT=$?
@@ -22,8 +24,6 @@ FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
 EXCLUDES=(/proc /sys /dev /run /tmp)
 
-function getfilesysteminfo
-{
 unset DONE1FSES
 ROOTFSROOT=/
 IFS=$'\n'
