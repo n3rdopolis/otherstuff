@@ -1,5 +1,4 @@
 #!/bin/bash
-# TODO find a way to specify, and append excludes
 
 function GetMountMap
 {
@@ -24,7 +23,16 @@ fi
 FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" | sort -k4,4n --stable -k 1,1 -k2,2)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
-EXCLUDES=(/proc /sys /dev /run /tmp)
+IFS=,
+EXCLUDES+=($IEXCLUDE)
+EXCLUDES+=($EXCLUDE)
+unset IFS
+EXCLUDECOUNT=${#EXCLUDES[@]}
+
+if [[ $EXCLUDECOUNT == 0 ]]
+then
+  EXCLUDES=(/proc,/sys,/dev,/run,/tmp)
+fi
 
 MOUNT_MAP_OUTPUT=""
 
