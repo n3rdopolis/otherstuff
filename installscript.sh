@@ -1,40 +1,38 @@
 #!/bin/bash
-# TODO better naming 
 # TODO find a way to specify, and append excludes
 
-function getfilesysteminfo
+function GetMountMap
 {
 #Get if root is a mountpont
 mountpoint / -q
-ISROOTMOUNT=$?
+ROOTISMOUNTPOINT=$?
 
 #Handle choots
-if [[ $ISROOTMOUNT != 0 ]]
+if [[ $ROOTISMOUNTPOINT != 0 ]]
 then
   echo "/ is not a mountpoint. Is / a chroot? Try to bindmount the chroot path onto itself"
-  exit
+  exit 1
 fi
 INITROOTFS=$(findmnt -vUrno FSROOT -N1 /)
 THISROOTFS=$(findmnt -vUrno FSROOT /)
 if [[ "$INITROOTFS" != "$THISROOTFS" ]]
 then
-  REPLACESTRING="$THISROOTFS"
+  CHROOTPATH="$THISROOTFS"
 else
-  REPLACESTRING=/
+  CHROOTPATH=/
 fi
-FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$REPLACESTRING|/|g" -e "s|//|/|g" | sort -k4,4n --stable -k 1,1 -k2,2)
+FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" | sort -k4,4n --stable -k 1,1 -k2,2)
 FSES=${FSES//MAJ:MIN/MAJ_MIN}
 
 EXCLUDES=(/proc /sys /dev /run /tmp)
 
-OUTSTR=""
+MOUNT_MAP_OUTPUT=""
 
-BINDISFILE=0
-FSCANTOVERLAY=0
+FILE_IS_BIND_MOUNTED=0
+UNSUPPORTED_LOWERDIR_FS=0
 
 
 unset DONE1FSES
-ROOTFSROOT=/
 IFS=$'\n'
 for SEARCH1FS in $FSES
 do
@@ -57,7 +55,7 @@ do
     fi
   done
 
-  if [[ ("$SEARCH1FSROOT" == "$ROOTFSROOT") && ("$FS1WASHANDLED" == 0) ]]
+  if [[ ("$SEARCH1FSROOT" == "/") && ("$FS1WASHANDLED" == 0) ]]
   then
   DONE1FSES+="$MAJ_MIN"$'\n'
   IFS=$'\n'
@@ -92,7 +90,7 @@ do
 
     if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN")  && ("$SEARCH1TARGET" != "$SEARCH2TARGET" )  && ("$FS2WASHANDLED" == 0 ) ]]
     then
-      if [[ "$SEARCH1TARGET" == "$ROOTFSROOT" ]]
+      if [[ "$SEARCH1TARGET" == "$/" ]]
       then
         SEARCH1TARGET=""
       fi
@@ -100,9 +98,9 @@ do
       if [[ -f $SEARCH2TARGET ]]
       then
         >&2 echo "$SEARCH2TARGET is a bind mounted file"
-        BINDISFILE=1
+        FILE_IS_BIND_MOUNTED=1
       fi
-      OUTSTR+="MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""$'\n'
+      MOUNT_MAP_OUTPUT+="MOUNTSOURCE=\"$SEARCH1TARGET$SEARCH2FSROOT\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"1\" DOOVERLAY=\"0\""$'\n'
     fi
 
     if [[ ($FS2WASHANDLED == 0) && ("$SEARCH1TARGET" == "$SEARCH2TARGET" ) ]]
@@ -113,11 +111,11 @@ do
         if [[ "" ]]
         then
           >&2 echo "$SEARCH2TARGET is not supported by overlayfs"
-          FSCANTOVERLAY=1
+          UNSUPPORTED_LOWERDIR_FS=1
         fi
-        OUTSTR+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""$'\n'
+        MOUNT_MAP_OUTPUT+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"1\""$'\n'
       else
-        OUTSTR+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""$'\n'
+        MOUNT_MAP_OUTPUT+="MOUNTSOURCE=\"\" MOUNTDEST=\"$SEARCH2TARGET\" ISBIND=\"0\" DOOVERLAY=\"0\""$'\n'
       fi
     fi
 
@@ -126,15 +124,15 @@ do
   fi
 done
 
-if [[ $FSCANTOVERLAY == 1 || $BINDISFILE == 1 ]]
+if [[ $UNSUPPORTED_LOWERDIR_FS == 1 || $FILE_IS_BIND_MOUNTED == 1 ]]
 then
   exit 1
 else
-  echo "$OUTSTR" | sort -k3,3 -k2,2 -k4,4
+  echo "$MOUNT_MAP_OUTPUT" | sort -k3,3 -k2,2 -k4,4
 fi
 }
 
-MOUNTEDFILESYSTEMS=$(getfilesysteminfo)
+MAPPEDMOUNTS=$(GetMountMap)
 
 #Setup a union mount, if supported
 if [[ $HASOVERLAYFS -eq 1 ]]
@@ -146,9 +144,9 @@ then
   MOUNTS=$(findmnt -lUno TARGET|sort)
   #Go through each mount, and create an overlayfs, or bind it in, or create a bind mount, based on an existing bind mount
   IFS=$'\n'
-  for MOUNTEDFILESYSTEM in $MOUNTEDFILESYSTEMS
+  for MAPPEDMOUNT in $MAPPEDMOUNTS
   do
-    eval "$MOUNTEDFILESYSTEM"
+    eval "$MAPPEDMOUNT"
     if [[ $ISBIND == 0 ]]
     then
       if [[ $DOOVERLAY == 1 ]]
