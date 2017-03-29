@@ -97,7 +97,7 @@ function getmountmap
 
       if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN")  && ("$SEARCH1TARGET" != "$SEARCH2TARGET" )  && ("$FS2WASHANDLED" == 0 ) ]]
       then
-        if [[ "$SEARCH1TARGET" == "$/" ]]
+        if [[ "$SEARCH1TARGET" == "/" ]]
         then
           SEARCH1TARGET=""
         fi
