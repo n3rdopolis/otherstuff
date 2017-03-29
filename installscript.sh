@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function GetMountMap
+function getmountmap
 {
 #Get if root is a mountpont
 mountpoint / -q
