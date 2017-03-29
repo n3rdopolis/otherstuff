@@ -140,11 +140,10 @@ else
 fi
 }
 
-MAPPEDMOUNTS=$(GetMountMap)
 
-#Setup a union mount, if supported
-if [[ $HASOVERLAYFS -eq 1 ]]
-then
+function createtraslationmounts
+{
+  MAPPEDMOUNTS=$(</dev/stdin)
   mkdir "${TMP_DIR}/TRANSL"
   mkdir "${TMP_DIR}/workdir"
   mkdir "${TMP_DIR}/uniondirs"
@@ -182,7 +181,8 @@ then
   unset IFS
 
   pivot_root "${TMP_DIR}/workdir" "${TMP_DIR}/workdir/${TMP_DIR}/uniondirs"
-fi
+}
+getmountmap | createtraslationmounts
 
 cd "$DIRECTORIO_FUENTE"
 
