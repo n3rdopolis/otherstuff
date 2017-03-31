@@ -148,7 +148,9 @@ function createtraslationmounts
   mkdir "${TMP_DIR}/TRANSL"
   mkdir "${TMP_DIR}/workdir"
   mkdir "${TMP_DIR}/uniondirs"
+  declare -i MOUNTFAILCOUNT=0
   mount --make-rprivate /
+  MOUNTFAILCOUNT+=$?
   MOUNTS=$(findmnt -lUno TARGET|sort)
   #Go through each mount, and create an overlayfs, or bind it in, or create a bind mount, based on an existing bind mount
   IFS=$'\n'
@@ -165,8 +167,10 @@ function createtraslationmounts
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTDEST"
 
         mount -t overlay overlay -o lowerdir="$MOUNTDEST",upperdir="${TMP_DIR}/TRANSL/$MOUNTDEST",workdir="${TMP_DIR}/uniondirs/$WORKDIRNAME" "${TMP_DIR}/workdir/$MOUNTDEST"
+        MOUNTFAILCOUNT+=$?
       else
         mount --bind $MOUNTDEST "${TMP_DIR}/workdir/$MOUNT"
+        MOUNTFAILCOUNT+=$?
       fi
     else
       if [[ -d "$MOUNTSOURCE" ]]
@@ -174,7 +178,9 @@ function createtraslationmounts
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTSOURCE"
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTDEST"
         mount --bind "${TMP_DIR}/TRANSL/$MOUNTSOURCE" "${TMP_DIR}/TRANSL/$MOUNTDEST"
+        MOUNTFAILCOUNT+=$?
         mount --bind "${TMP_DIR}/workdir/$MOUNTSOURCE" "${TMP_DIR}/workdir/$MOUNTDEST"
+        MOUNTFAILCOUNT+=$?
       fi
     fi
 
@@ -182,6 +188,14 @@ function createtraslationmounts
   unset IFS
 
   pivot_root "${TMP_DIR}/workdir" "${TMP_DIR}/workdir/${TMP_DIR}/uniondirs"
+  MOUNTFAILCOUNT+=$?
+
+  if [[ $MOUNTFAILCOUNT == 0 ]]
+  then
+    exit 0
+  else
+    exit 1
+  fi
 }
 getmountmap | createtraslationmounts
 
