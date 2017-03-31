@@ -20,8 +20,7 @@ function getmountmap
   else
     CHROOTPATH=/
   fi
-  FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" | sort -k4,4n --stable -k 1,1 -k2,2)
-  FSES=${FSES//MAJ:MIN/MAJ_MIN}
+  FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" -e "s|^MAJ:MIN=|MAJ_MIN=|g" | sort -k4,4n --stable -k 1,1 -k2,2)
 
   IFS=,
   EXCLUDES+=($IEXCLUDE)
@@ -46,12 +45,13 @@ function getmountmap
   do
     HASBINDS=0
     unset DONE2FSES
-    eval "$SEARCH1FS"
-    SEARCH1ID="$ID"
-    SEARCH1FSROOT="$FSROOT"
-    SEARCH1TARGET="$TARGET"
-    SEARCH1MAJMIN="$MAJ_MIN"
-  
+    unset IFS
+    declare $SEARCH1FS
+    SEARCH1ID="${ID:1:-1}"
+    SEARCH1FSROOT="${FSROOT:1:-1}"
+    SEARCH1TARGET="${TARGET:1:-1}"
+    SEARCH1MAJMIN="${MAJ_MIN:1:-1}"
+
     FS1WASHANDLED=0
     IFS=$'\n'
     for DONE1FS in $DONE1FSES
@@ -70,11 +70,12 @@ function getmountmap
     for SEARCH2FS in $FSES
     do
       TARGETEXCLUDED=0
-      eval "$SEARCH2FS"
-      SEARCH2ID=$ID
-      SEARCH2FSROOT=$FSROOT
-      SEARCH2TARGET=$TARGET
-      SEARCH2MAJMIN=$MAJ_MIN
+      unset IFS
+      declare $SEARCH2FS
+      SEARCH2ID="${ID:1:-1}"
+      SEARCH2FSROOT="${FSROOT:1:-1}"
+      SEARCH2TARGET="${TARGET:1:-1}"
+      SEARCH2MAJMIN="${MAJ_MIN:1:-1}"
       FS2WASHANDLED=0
       for DONE2FS in $DONE2FSES
       do
