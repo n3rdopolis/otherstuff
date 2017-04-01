@@ -230,7 +230,13 @@ function createtraslationmounts
     exit 1
   fi
 }
-getmountmap | createtraslationmounts
+createtraslationmounts < <(echo "$FILESYSTEMMAP")
+MOUNTSTATUS=$?
+if [[ $MOUNTSTATUS != 0 ]]
+then
+  echo "An overlay traslation file system mount, or bind mount failed"
+  exit 1
+fi
 
 cd "$DIRECTORIO_FUENTE"
 
