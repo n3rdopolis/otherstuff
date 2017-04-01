@@ -150,7 +150,12 @@ function createtraslationmounts
   mkdir "${TMP_DIR}/uniondirs"
   declare -i MOUNTFAILCOUNT=0
   mount --make-rprivate /
-  MOUNTFAILCOUNT+=$?
+  MOUNTRESULT=$?
+  MOUNTFAILCOUNT+=$MOUNTRESULT
+  if [[ $MOUNTRESULT != 0 ]]
+  then
+    >&2 echo "Failed to make all mounts private"
+  fi
   MOUNTS=$(findmnt -lUno TARGET|sort)
   #Go through each mount, and create an overlayfs, or bind it in, or create a bind mount, based on an existing bind mount
   IFS=$'\n'
@@ -167,10 +172,20 @@ function createtraslationmounts
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTDEST"
 
         mount -t overlay overlay -o lowerdir="$MOUNTDEST",upperdir="${TMP_DIR}/TRANSL/$MOUNTDEST",workdir="${TMP_DIR}/uniondirs/$WORKDIRNAME" "${TMP_DIR}/workdir/$MOUNTDEST"
-        MOUNTFAILCOUNT+=$?
+        MOUNTRESULT=$?
+        MOUNTFAILCOUNT+=$MOUNTRESULT
+        if [[ $MOUNTRESULT != 0 ]]
+        then
+          >&2 echo "Failed to union mount $MOUNTDEST"
+        fi
       else
-        mount --bind $MOUNTDEST "${TMP_DIR}/workdir/$MOUNT"
-        MOUNTFAILCOUNT+=$?
+        mount --bind $MOUNTDEST "${TMP_DIR}/workdir/$MOUNTDEST"
+        MOUNTRESULT=$?
+        MOUNTFAILCOUNT+=$MOUNTRESULT
+        if [[ $MOUNTRESULT != 0 ]]
+        then
+          >&2 echo "Failed to bin in non unioned $MOUNTDEST"
+        fi
       fi
     else
       if [[ -d "$MOUNTSOURCE" ]]
@@ -178,9 +193,22 @@ function createtraslationmounts
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTSOURCE"
         mkdir -p "${TMP_DIR}/TRANSL/$MOUNTDEST"
         mount --bind "${TMP_DIR}/TRANSL/$MOUNTSOURCE" "${TMP_DIR}/TRANSL/$MOUNTDEST"
-        MOUNTFAILCOUNT+=$?
+        MOUNTRESULT=$?
+        MOUNTFAILCOUNT+=$MOUNTRESULT
+        if [[ $MOUNTRESULT != 0 ]]
+        then
+          >&2 echo "Failed bind mount real $MOUNTSOURCE to $MOUNTDEST"
+        fi
         mount --bind "${TMP_DIR}/workdir/$MOUNTSOURCE" "${TMP_DIR}/workdir/$MOUNTDEST"
-        MOUNTFAILCOUNT+=$?
+        MOUNTRESULT=$?
+        MOUNTFAILCOUNT+=$MOUNTRESULT
+        if [[ $MOUNTRESULT != 0 ]]
+        then
+          >&2 echo "Failed bind mount translation $MOUNTSOURCE to $MOUNTDEST"
+        fi
+      else
+        >&2 echo "$MOUNTSOURCE does not exist"
+        MOUNTFAILCOUNT+=1
       fi
     fi
 
@@ -188,7 +216,12 @@ function createtraslationmounts
   unset IFS
 
   pivot_root "${TMP_DIR}/workdir" "${TMP_DIR}/workdir/${TMP_DIR}/uniondirs"
-  MOUNTFAILCOUNT+=$?
+  MOUNTRESULT=$?
+  MOUNTFAILCOUNT+=$MOUNTRESULT
+  if [[ $MOUNTRESULT != 0 ]]
+  then
+    >&2 echo "Failed to piviot_root"
+  fi
 
   if [[ $MOUNTFAILCOUNT == 0 ]]
   then
