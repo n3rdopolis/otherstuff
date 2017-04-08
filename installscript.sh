@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# TODO detect if overlayfs not supported
+function checkcanoverlay 
+{
+  exit 0
+}
+
 function getmountmap
 {
   #Get if root is a mountpont
@@ -116,8 +122,9 @@ function getmountmap
       then
         if [[ $TARGETEXCLUDED == 0 ]]
         then
-          # TODO detect if overlayfs not supported
-          if [[ "" ]]
+          checkcanoverlay "$SEARCH2TARGET"
+          filesystemcanoverlay=$?
+          if [[ filesystemcanoverlay != 0 ]]
           then
             >&2 echo "$SEARCH2TARGET is not supported by overlayfs"
             UNSUPPORTED_LOWERDIR_FS=1
