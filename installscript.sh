@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # TODO detect if overlayfs not supported
-function checkcanoverlay 
+function checkcanoverlay
 {
   exit 0
 }
