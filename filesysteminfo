@@ -26,7 +26,7 @@ function getmountmap
   else
     CHROOTPATH=/
   fi
-  FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" -e "s|^MAJ:MIN=|MAJ_MIN=|g" | sort -k4,4n --stable -k 1,1 -k2,2)
+  FSES=$(findmnt -vUPno MAJ:MIN,FSROOT,TARGET,ID  | sed -e "s|$CHROOTPATH|/|g" -e "s|//|/|g" -e "s|^MAJ:MIN=|MAJ_MIN=|g" | sort -k4,4n --stable)
 
   IFS=,
   EXCLUDES+=($IEXCLUDE)
@@ -50,28 +50,26 @@ function getmountmap
   for SEARCH1FS in $FSES
   do
     HASBINDS=0
-    unset DONE2FSES
     unset IFS
     declare $SEARCH1FS
     SEARCH1ID="${ID:1:-1}"
     SEARCH1FSROOT="${FSROOT:1:-1}"
     SEARCH1TARGET="${TARGET:1:-1}"
     SEARCH1MAJMIN="${MAJ_MIN:1:-1}"
-
     FS1WASHANDLED=0
     IFS=$'\n'
     for DONE1FS in $DONE1FSES
     do
-      if [[ "$DONE1FS" == "$MAJ_MIN" ]]
+      if [[ "$DONE1FS" == "${SEARCH1MAJMIN}:${SEARCH1FSROOT}" ]]
       then
         FS1WASHANDLED=1
         break
       fi
     done
 
-    if [[ ("$SEARCH1FSROOT" == "/") && ("$FS1WASHANDLED" == 0) ]]
+    if [[ ("$FS1WASHANDLED" == 0) ]]
     then
-    DONE1FSES+="$MAJ_MIN"$'\n'
+    DONE1FSES+="${SEARCH1MAJMIN}:${SEARCH1FSROOT}"$'\n'
     IFS=$'\n'
     for SEARCH2FS in $FSES
     do
@@ -85,7 +83,7 @@ function getmountmap
       FS2WASHANDLED=0
       for DONE2FS in $DONE2FSES
       do
-        if [[ $DONE2FS == $SEARCH2FS ]]
+        if [[ $DONE2FS == $SEARCH2ID ]]
         then
           FS2WASHANDLED=1
           break
@@ -109,7 +107,7 @@ function getmountmap
         then
           SEARCH1TARGET=""
         fi
-        DONE2FSES+="$SEARCH2FS"$'\n'
+        DONE2FSES+="$SEARCH2ID"$'\n'
         if [[ -f $SEARCH2TARGET ]]
         then
           >&2 echo "$SEARCH2TARGET is a bind mounted file"
@@ -153,7 +151,4 @@ function getmountmap
 ALLFSES=$(getmountmap)
 
 
-echo "filesystems:
-$ALLFSES
-
-"
+echo "$ALLFSES"
