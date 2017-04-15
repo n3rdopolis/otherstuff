@@ -191,7 +191,7 @@ function createtraslationmounts
         MOUNTFAILCOUNT+=$MOUNTRESULT
         if [[ $MOUNTRESULT != 0 ]]
         then
-          >&2 echo "Failed to bin in non unioned $MOUNTDEST"
+          >&2 echo "Failed to bind in non unioned $MOUNTDEST"
         fi
       fi
     else
@@ -227,7 +227,7 @@ function createtraslationmounts
   MOUNTFAILCOUNT+=$MOUNTRESULT
   if [[ $MOUNTRESULT != 0 ]]
   then
-    >&2 echo "Failed to piviot_root"
+    >&2 echo "Failed to pivot_root"
   fi
 
   if [[ $MOUNTFAILCOUNT == 0 ]]
