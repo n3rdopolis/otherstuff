@@ -108,6 +108,7 @@ function getmountmap
           SEARCH1TARGET=""
         fi
         DONE2FSES+="$SEARCH2ID"$'\n'
+        DONE1FSES+="${SEARCH2MAJMIN}:${SEARCH2FSROOT}"$'\n'
         if [[ -f $SEARCH2TARGET ]]
         then
           >&2 echo "$SEARCH2TARGET is a bind mounted file"
