@@ -3,7 +3,7 @@
 # TODO detect if overlayfs not supported
 function checkcanoverlay
 {
-  exit 0
+  return 0
 }
 
 function getmountmap
@@ -16,7 +16,7 @@ function getmountmap
   if [[ $ROOTISMOUNTPOINT != 0 ]]
   then
     >&2 echo "/ is not a mountpoint. Is / a chroot? Try to bindmount the chroot path onto itself"
-    exit 1
+    return 1
   fi
   INITROOTFS=$(findmnt -vUrno FSROOT -N1 /)
   THISROOTFS=$(findmnt -vUrno FSROOT /)
@@ -142,7 +142,7 @@ function getmountmap
 
   if [[ $UNSUPPORTED_LOWERDIR_FS == 1 || $FILE_IS_BIND_MOUNTED == 1 ]]
   then
-    exit 1
+    return 1
   else
     echo "$MOUNT_MAP_OUTPUT" | sort -k3,3 -k2,2 -k4,4
   fi
@@ -232,9 +232,9 @@ function createtraslationmounts
 
   if [[ $MOUNTFAILCOUNT == 0 ]]
   then
-    exit 0
+    return 0
   else
-    exit 1
+    return 1
   fi
 }
 createtraslationmounts < <(echo "$FILESYSTEMMAP")
@@ -242,7 +242,7 @@ MOUNTSTATUS=$?
 if [[ $MOUNTSTATUS != 0 ]]
 then
   echo "An overlay traslation file system mount, or bind mount failed"
-  exit 1
+  return 1
 fi
 
 cd "$DIRECTORIO_FUENTE"
