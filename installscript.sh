@@ -69,6 +69,7 @@ function getmountmap
 
     if [[ ("$FS1WASHANDLED" == 0) ]]
     then
+    REALPATHMAJMIN=$(findmnt -vUrno MAJ:MIN,FSROOT "$SEARCH1TARGET$SEARCH1FSROOT")
     DONE1FSES+="${SEARCH1MAJMIN}:${SEARCH1FSROOT}"$'\n'
     IFS=$'\n'
     for SEARCH2FS in $FSES
@@ -101,7 +102,7 @@ function getmountmap
       done
 
 
-      if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN")  && ("$SEARCH1FSROOT" == "$SEARCH2FSROOT") && ("$SEARCH1TARGET" != "$SEARCH2TARGET" )  && ("$FS2WASHANDLED" == 0 ) ]]
+      if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN") && ("$SEARCH1TARGET" != "$SEARCH2TARGET" ) && ("$FS2WASHANDLED" == 0 ) && ($REALPATHMAJMIN == "$SEARCH1MAJMIN $SEARCH1FSROOT") ]]
       then
         #Dont add extra leading slashes. Most paths dont end in /, except for root paths,
         if [[ "$SEARCH1TARGET" == "/" ]]
@@ -110,7 +111,7 @@ function getmountmap
         fi
         DONE2FSES+="$SEARCH2ID"$'\n'
         DONE1FSES+="${SEARCH2MAJMIN}:${SEARCH2FSROOT}"$'\n'
-        if [[ -f $SEARCH2TARGET ]]
+        if [[ -f "$SEARCH2TARGET" ]]
         then
           >&2 echo "$SEARCH2TARGET is a bind mounted file"
           FILE_IS_BIND_MOUNTED=1
