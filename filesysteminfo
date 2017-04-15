@@ -69,6 +69,7 @@ function getmountmap
 
     if [[ ("$FS1WASHANDLED" == 0) ]]
     then
+    REALPATHMAJMIN=$(findmnt -vUrno MAJ:MIN,FSROOT "$SEARCH1TARGET$SEARCH1FSROOT")
     DONE1FSES+="${SEARCH1MAJMIN}:${SEARCH1FSROOT}"$'\n'
     IFS=$'\n'
     for SEARCH2FS in $FSES
@@ -101,7 +102,7 @@ function getmountmap
       done
 
 
-      if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN") && ("$SEARCH1TARGET" != "$SEARCH2TARGET" ) && ("$FS2WASHANDLED" == 0 ) ]]
+      if [[ ("$SEARCH1MAJMIN" == "$SEARCH2MAJMIN") && ("$SEARCH1TARGET" != "$SEARCH2TARGET" ) && ("$FS2WASHANDLED" == 0 ) && ($REALPATHMAJMIN == "$SEARCH1MAJMIN $SEARCH1FSROOT") ]]
       then
         #Dont add extra leading slashes. Most paths dont end in /, except for root paths,
         if [[ "$SEARCH1TARGET" == "/" ]]
