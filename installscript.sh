@@ -1,9 +1,16 @@
 #!/bin/bash
 
-# TODO detect if overlayfs not supported
+# TODO better detection, right now, it tests using the path in a namespace
 function checkcanoverlay
 {
-  return 0
+  unshare -m mount -t overlay overlay -o lowerdir="$1:$1"  /media/ &>/dev/null
+  overlaytestresult=$?
+  if [[ $overlaytestresult == 0 ]]
+  then
+    return 0
+  else
+    return 1
+  fi
 }
 
 function getmountmap
@@ -36,7 +43,7 @@ function getmountmap
 
   if [[ $EXCLUDECOUNT == 0 ]]
   then
-    EXCLUDES=(/proc,/sys,/dev,/run,/tmp)
+    EXCLUDES=(/proc /sys /dev /run /tmp)
   fi
 
   MOUNT_MAP_OUTPUT=""
