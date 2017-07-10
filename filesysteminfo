@@ -36,9 +36,12 @@ function checkcanoverlayasupper
     return 0
   fi
   mkdir -p "$1/.ovlprobeworkdir"
-  unshare -m mount -t overlay overlay -o lowerdir=/,upperdir="$1",workdir="$1/.ovlprobeworkdir"  /tmp/ &>/dev/null
+  mkdir -p "$1/.ovlprobeupperdir"
+  unshare -m mount -t overlay overlay -o lowerdir=/,upperdir="$1/.ovlprobeupperdir",workdir="$1/.ovlprobeworkdir"  /tmp/ &>/dev/null
   overlaytestresult=$?
-  rmdir "$1/.ovlprobeworkdir"
+  rmdir "$1/.ovlprobeworkdir/work/"  2>/dev/null
+  rmdir "$1/.ovlprobeworkdir/"  2>/dev/null
+  rmdir "$1/.ovlprobeupperdir" 2>/dev/null
   if [[ $overlaytestresult == 0 ]]
   then
     return 0
