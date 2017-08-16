@@ -1,0 +1,13 @@
+qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga none -enable-kvm -device VGA,id=video0  -device secondary-vga,id=video1 -device secondary-vga,id=video2  -spice port=5930,disable-ticketing -cpu host \
+-device ich9-usb-ehci1,id=usb \
+-device ich9-usb-uhci1,masterbus=usb.0,firstport=0,multifunction=on \
+-device ich9-usb-uhci2,masterbus=usb.0,firstport=2 \
+-device ich9-usb-uhci3,masterbus=usb.0,firstport=4 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev1 \
+-device usb-redir,chardev=usbredirchardev1,id=usbredirdev1 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev2 \
+-device usb-redir,chardev=usbredirchardev2,id=usbredirdev2 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev3 \
+-device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 &  
+remote-viewer spice://127.0.0.1:5930 
+
