@@ -8,6 +8,10 @@ qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga none -en
 -chardev spicevmc,name=usbredir,id=usbredirchardev2 \
 -device usb-redir,chardev=usbredirchardev2,id=usbredirdev2 \
 -chardev spicevmc,name=usbredir,id=usbredirchardev3 \
--device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 &  
+-device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 \
+-device usb-mouse,id=input2 -device usb-mouse,id=input3 -device usb-mouse,id=input4 \
+-device usb-kbd,id=input7 &
+QEMUPID=$!
 remote-viewer spice://127.0.0.1:5930 
+kill $QEMUPID
 
