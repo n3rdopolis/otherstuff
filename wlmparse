@@ -1,0 +1,82 @@
+#! /bin/bash
+
+
+#PARSE DESKTOP ENTRIES
+DesktopFileData=$(awk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
+ENDFILE {print "[Desktop Entry]#" filenum; \
+print "PhysicalFileName=" FILENAME "#" filenum; \
+print "Enabled=#" filenum; \
+print "Name=#" filenum; \
+print "Comment=#" filenum; \
+print "Type=#" filenum; \
+print "IsFallbackSession=#" filenum; \
+print "CompositorDisplayArgument=#" filenum; \
+print "CompositorSeatArgument=#" filenum; \
+print "SessionArgument=#" filenum; \
+print "AdditionalArguments=#" filenum; \
+print "CompositorExec=#" filenum; \
+print "EnvironmentFile=#" filenum; \
+print filenum; \
+filenum+=1}' \
+/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
+
+
+
+DesktopFileDataArray=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
+-e 's/^ *Name *= */001#/' \
+-e 's/^ *Comment *= */002#/' \
+-e 's/^ *Type *= */003#/' \
+-e 's/^ *IsFallbackSession *= */004#/' \
+-e 's/^ *CompositorDisplayArgument *= */005#/' \
+-e 's/^ *CompositorSeatArgument *= */006#/' \
+-e 's/^ *SessionArgument *= */007#/' \
+-e 's/^ *AdditionalArguments *= */008#/' \
+-e 's/^ *CompositorExec *= */009#/' \
+-e 's/^ *EnvironmentFile *= */010#/' \
+-e 's/^ *PhysicalFileName *= */011#/' \
+-e 's/^ *EOF *= */012#/' \
+-e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -k 3,3 -k1,1 -u))
+
+
+
+
+
+#Get NeedsFiles
+NeedsFilesArray=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+-e 's/^ *NeedsFile *= */000#/' \
+-e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g'))
+
+
+
+
+
+#Get Seat HW support
+DesktopFileCount=${DesktopFileData##*$'\n'}
+
+DesktopFileBackendArrayPlaceholders=""
+for (( iterator=1 ; iterator <= $DesktopFileCount ; iterator++ ))
+do
+  for BACKEND in KMS WL FB
+  do
+    BackendPlaceHolders=""
+    BackendPlaceHolders+=$'\n'"CompositorSupports${BACKEND}=#$iterator"
+    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}Arguments=#$iterator"
+    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}SeatAware=#$iterator"
+    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}SeatArgument=#$iterator"
+    DesktopFileBackendArrayPlaceholders+=$'\n'$BackendPlaceHolders$'\n'
+  done
+done
+
+SeatHardwareArray=($(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
+-re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */001#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */002#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)SeatArgument *= */003#\1#/" \
+-e "/^[0-9][0-9][0-9]#/!d" | sed -re 's/^([0-9][0-9][0-9])#KMS#/\1#000#/g' \
+-re 's/^([0-9][0-9][0-9])#WL#/\1#001#/g' \
+-re 's/^([0-9][0-9][0-9])#FB#/\1#002#/g' | sort -t "#" -u -k4,4 -u -k2,2 -k1,1 | sed -re 's/^([0-9][0-9][0-9])#000#/\1#KMS#/g' \
+-re 's/^([0-9][0-9][0-9])#001#/\1#WL#/g' \
+-re 's/^([0-9][0-9][0-9])#002#/\1#FB#/g'))
+
+
+ 
