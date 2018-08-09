@@ -19,6 +19,7 @@
 ###########################################################################################
 #
 #PARSE DESKTOP ENTRIES
+#PARSE DESKTOP ENTRIES
 DesktopFileData=$(awk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
 ENDFILE {print "[Desktop Entry]#" filenum; \
 print "PhysicalFileName=" FILENAME "#" filenum; \
@@ -39,7 +40,7 @@ Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop |
 
 
 
-DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
+DesktopFileDataList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
 -e 's/^ *Name *= */001#/' \
 -e 's/^ *Comment *= */002#/' \
 -e 's/^ *Type *= */003#/' \
@@ -54,9 +55,13 @@ DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' 
 -e 's/^ *EOF *= */012#/' \
 -e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -nk 3,3 -k1,1 -u | sed -e 's/#[[:digit:]]\+$//g' -e 's/012#/\r/g' )
 
+
+DesktopFileDataList=${DesktopFileDataList//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-DesktopFileDataArray=($DesktopFileDataArray)
+DesktopFileDataArray=(${DesktopFileDataList//$'\n'$'\r'/})
 unset IFS
+
+unset DesktopFileDataList
 #
 ###########################################################################################
 
