@@ -1,6 +1,8 @@
 #! /bin/bash
 
 
+###########################################################################################
+#
 #PARSE DESKTOP ENTRIES
 DesktopFileData=$(awk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
 ENDFILE {print "[Desktop Entry]#" filenum; \
@@ -16,13 +18,13 @@ print "SessionArgument=#" filenum; \
 print "AdditionalArguments=#" filenum; \
 print "CompositorExec=#" filenum; \
 print "EnvironmentFile=#" filenum; \
-print filenum; \
+print "EOF=#" filenum; \
 filenum+=1}' \
-/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
+Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
 
 
 
-DesktopFileDataArray=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
+DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
 -e 's/^ *Name *= */001#/' \
 -e 's/^ *Comment *= */002#/' \
 -e 's/^ *Type *= */003#/' \
@@ -35,21 +37,42 @@ DesktopFileDataArray=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g'
 -e 's/^ *EnvironmentFile *= */010#/' \
 -e 's/^ *PhysicalFileName *= */011#/' \
 -e 's/^ *EOF *= */012#/' \
--e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -k 3,3 -k1,1 -u))
+-e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -nk 3,3 -k1,1 -u | sed -e 's/#[[:digit:]]\+$//g' -e 's/012#/\r/g' )
+
+IFS=$'\r'
+DesktopFileDataArray=($DesktopFileDataArray)
+unset IFS
+#
+###########################################################################################
 
 
 
-
-
+###########################################################################################
+#
 #Get NeedsFiles
-NeedsFilesArray=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+NeedsFilesList=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
 -e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g'))
 
+NeedsFilesArray=()
+for NeedsFileElement in ${NeedsFilesList[@]}
+do
+  IFS="#"
+  NeedsFileElement=($NeedsFileElement)
+  unset IFS
+  NeedsFileNumber=${NeedsFileElement[2]}
+  NeedsFileNumber=$((NeedsFileNumber=$NeedsFileNumber-1))
+  if [[ ! -z ${NeedsFilesArray[$NeedsFileNumber]} ]]
+  then
+    NeedsFilesArray[$NeedsFileNumber]+=$'\n'
+  fi
+  NeedsFilesArray[$NeedsFileNumber]+="${NeedsFileElement[0]}#${NeedsFileElement[1]}"
+done
+#
+###########################################################################################
 
-
-
-
+###########################################################################################
+#
 #Get Seat HW support
 DesktopFileCount=${DesktopFileData##*$'\n'}
 
@@ -78,5 +101,5 @@ SeatHardwareArray=($(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceh
 -re 's/^([0-9][0-9][0-9])#001#/\1#WL#/g' \
 -re 's/^([0-9][0-9][0-9])#002#/\1#FB#/g'))
 
-
- 
+#
+########################################################################################### 
