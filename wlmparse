@@ -113,9 +113,10 @@ SeatHardwareList=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlacehol
 -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#101#/\1#WL#/g' \
 -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#102#/\1#FB#/g' | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#999#999#/\r/g')
 
-IFS=$'\r'
-SeatHardwareArray=($SeatHardwareList)
-unset IFS
 
+SeatHardwareList=${SeatHardwareList//$'\n'$'\r'$'\n'/$'\r'}
+IFS=$'\r'
+SeatHardwareArray=(${SeatHardwareList//$'\n'$'\r'/})
+unset IFS
 #
 ########################################################################################### 
