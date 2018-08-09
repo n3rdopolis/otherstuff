@@ -1,5 +1,20 @@
 #! /bin/bash
-
+#    Copyright (c) 2012, 2013, 2014, 2015, 2016, 2017, 2018 nerdopolis (or n3rdopolis) <bluescreen_avenger@verzion.net>
+#
+#    This file is (going to be) part of RebeccaBlackOS.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ###########################################################################################
 #
@@ -50,31 +65,22 @@ unset IFS
 ###########################################################################################
 #
 #Get NeedsFiles
-NeedsFilesList=($(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+NeedsFilesList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
--e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g'))
+-e 's/^ *EOF *= */001#/' \
+-e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#/\r/g')
 
-NeedsFilesArray=()
-for NeedsFileElement in ${NeedsFilesList[@]}
-do
-  IFS="#"
-  NeedsFileElement=($NeedsFileElement)
-  unset IFS
-  NeedsFileNumber=${NeedsFileElement[2]}
-  NeedsFileNumber=$((NeedsFileNumber=$NeedsFileNumber-1))
-  if [[ ! -z ${NeedsFilesArray[$NeedsFileNumber]} ]]
-  then
-    NeedsFilesArray[$NeedsFileNumber]+=$'\n'
-  fi
-  NeedsFilesArray[$NeedsFileNumber]+="${NeedsFileElement[0]}#${NeedsFileElement[1]}"
-done
+IFS=$'\r'
+NeedsFilesArray=($NeedsFilesList)
+unset IFS
+
 #
 ###########################################################################################
 
 ###########################################################################################
 #
 #Get Seat HW support
-DesktopFileCount=${DesktopFileData##*$'\n'}
+DesktopFileCount=${#DesktopFileDataArray[@]}
 
 DesktopFileBackendArrayPlaceholders=""
 for (( iterator=1 ; iterator <= $DesktopFileCount ; iterator++ ))
@@ -90,16 +96,21 @@ do
   done
 done
 
-SeatHardwareArray=($(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
--re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */001#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */002#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)SeatArgument *= */003#\1#/" \
--e "/^[0-9][0-9][0-9]#/!d" | sed -re 's/^([0-9][0-9][0-9])#KMS#/\1#000#/g' \
--re 's/^([0-9][0-9][0-9])#WL#/\1#001#/g' \
--re 's/^([0-9][0-9][0-9])#FB#/\1#002#/g' | sort -t "#" -u -k4,4 -u -k2,2 -k1,1 | sed -re 's/^([0-9][0-9][0-9])#000#/\1#KMS#/g' \
--re 's/^([0-9][0-9][0-9])#001#/\1#WL#/g' \
--re 's/^([0-9][0-9][0-9])#002#/\1#FB#/g'))
+SeatHardwareList=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
+-re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#000#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */000#001#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */000#002#\1#/" \
+-re  "s/^ *Compositor(KMS|WL|FB)SeatArgument *= */000#003#\1#/" \
+-e 's/^ *EOF *= */001#999#999#/' \
+-e "/^[0-9][0-9][0-9]#/!d" | sed -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#KMS#/\1#100#/g' \
+-re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#WL#/\1#101#/g' \
+-re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#FB#/\1#102#/g' | sort -t "#"  -k5,5 -k1,1 -u -k3,3 -k2,2 | sed -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#100#/\1#KMS#/g' \
+-re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#101#/\1#WL#/g' \
+-re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#102#/\1#FB#/g' | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#999#999#/\r/g')
+
+IFS=$'\r'
+SeatHardwareArray=($SeatHardwareList)
+unset IFS
 
 #
 ########################################################################################### 
