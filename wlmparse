@@ -72,11 +72,13 @@ unset DesktopFileDataList
 #Get NeedsFiles
 NeedsFilesList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
--e 's/^ *EOF *= */001#/' \
--e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#/\r/g')
+-e 's/^ *PhysicalFileName *= */001#/' \
+-e 's/^ *EOF *= */002#/' \
+-e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/002#/\r/g')
 
+NeedsFilesList=${NeedsFilesList//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-NeedsFilesArray=($NeedsFilesList)
+NeedsFilesArray=(${NeedsFilesList//$'\n'$'\r'/})
 unset IFS
 
 #
