@@ -36,7 +36,7 @@ print "CompositorExec=#" filenum; \
 print "EnvironmentFile=#" filenum; \
 print "EOF=#" filenum; \
 filenum+=1}' \
-Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
+/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
 
 
 
