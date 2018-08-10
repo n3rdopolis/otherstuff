@@ -41,7 +41,7 @@ filenum+=1}' \
 
 
 
-DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
+DesktopFileDataArrays=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
 -e 's/^ *Name *= */001#/' \
 -e 's/^ *Comment *= */002#/' \
 -e 's/^ *Type *= */003#/' \
@@ -57,10 +57,11 @@ DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' 
 -e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -nk 3,3 -k1,1 -u | sed -e 's/#[[:digit:]]\+$//g' -e 's/012#/\r/g' )
 
 
-DesktopFileDataArray=${DesktopFileDataArray//$'\n'$'\r'$'\n'/$'\r'}
+DesktopFileDataArrays=${DesktopFileDataArrays//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-DesktopFileDataArray=(${DesktopFileDataArray//$'\n'$'\r'/})
+DesktopFileDataArrays=(${DesktopFileDataArrays//$'\n'$'\r'/})
 unset IFS
+DesktopFileCount=${#DesktopFileDataArrays[@]}
 #
 ###########################################################################################
 
@@ -69,15 +70,15 @@ unset IFS
 ###########################################################################################
 #
 #Get NeedsFile
-NeedsFileArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+NeedsFileArrays=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
 -e 's/^ *PhysicalFileName *= */001#/' \
 -e 's/^ *EOF *= */002#/' \
 -e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/002#/\r/g')
 
-NeedsFileArray=${NeedsFileArray//$'\n'$'\r'$'\n'/$'\r'}
+NeedsFileArrays=${NeedsFileArrays//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-NeedsFileArray=(${NeedsFileArray//$'\n'$'\r'/})
+NeedsFileArrays=(${NeedsFileArrays//$'\n'$'\r'/})
 unset IFS
 
 #
@@ -86,7 +87,6 @@ unset IFS
 ###########################################################################################
 #
 #Get Seat HW support
-DesktopFileCount=${#DesktopFileDataArray[@]}
 
 SeatHardwareArrayPlaceholders=""
 for (( iterator=1 ; iterator <= $DesktopFileCount ; iterator++ ))
@@ -102,7 +102,7 @@ do
   done
 done
 
-SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$SeatHardwareArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
+SeatHardwareArrays=$(echo "$DesktopFileData"$'\n'"$SeatHardwareArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
 -re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#000#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */000#001#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */000#002#\1#/" \
@@ -115,9 +115,9 @@ SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$SeatHardwareArrayPlaceholders"
 -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#102#/\1#FB#/g' | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#999#999#/\r/g')
 
 
-SeatHardwareArray=${SeatHardwareArray//$'\n'$'\r'$'\n'/$'\r'}
+SeatHardwareArrays=${SeatHardwareArrays//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-SeatHardwareArray=(${SeatHardwareArray//$'\n'$'\r'/})
+SeatHardwareArrays=(${SeatHardwareArrays//$'\n'$'\r'/})
 unset IFS
 #
 ########################################################################################### 
