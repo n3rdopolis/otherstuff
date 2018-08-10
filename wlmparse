@@ -68,16 +68,16 @@ unset IFS
 
 ###########################################################################################
 #
-#Get NeedsFiles
-NeedsFilesArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+#Get NeedsFile
+NeedsFileArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
 -e 's/^ *PhysicalFileName *= */001#/' \
 -e 's/^ *EOF *= */002#/' \
 -e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/002#/\r/g')
 
-NeedsFilesArray=${NeedsFilesArray//$'\n'$'\r'$'\n'/$'\r'}
+NeedsFileArray=${NeedsFileArray//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-NeedsFilesArray=(${NeedsFilesArray//$'\n'$'\r'/})
+NeedsFileArray=(${NeedsFileArray//$'\n'$'\r'/})
 unset IFS
 
 #
@@ -88,21 +88,21 @@ unset IFS
 #Get Seat HW support
 DesktopFileCount=${#DesktopFileDataArray[@]}
 
-DesktopFileBackendArrayPlaceholders=""
+SeatHardwareArrayPlaceholders=""
 for (( iterator=1 ; iterator <= $DesktopFileCount ; iterator++ ))
 do
   for BACKEND in KMS WL FB
   do
-    BackendPlaceHolders=""
-    BackendPlaceHolders+=$'\n'"CompositorSupports${BACKEND}=#$iterator"
-    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}Arguments=#$iterator"
-    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}SeatAware=#$iterator"
-    BackendPlaceHolders+=$'\n'"Compositor${BACKEND}SeatArgument=#$iterator"
-    DesktopFileBackendArrayPlaceholders+=$'\n'$BackendPlaceHolders$'\n'
+    HardwarePlaceHolders=""
+    HardwarePlaceHolders+=$'\n'"CompositorSupports${BACKEND}=#$iterator"
+    HardwareHolders+=$'\n'"Compositor${BACKEND}Arguments=#$iterator"
+    HardwarePlaceHolders+=$'\n'"Compositor${BACKEND}SeatAware=#$iterator"
+    HardwarePlaceHolders+=$'\n'"Compositor${BACKEND}SeatArgument=#$iterator"
+    SeatHardwareArrayPlaceholders+=$'\n'$HardwarePlaceHolders$'\n'
   done
 done
 
-SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
+SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$SeatHardwareArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
 -re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#000#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */000#001#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */000#002#\1#/" \
@@ -117,7 +117,7 @@ SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceho
 
 SeatHardwareArray=${SeatHardwareArray//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-SeatHardwareArray=(${SeatHardwareList//$'\n'$'\r'/})
+SeatHardwareArray=(${SeatHardwareArray//$'\n'$'\r'/})
 unset IFS
 #
 ########################################################################################### 
