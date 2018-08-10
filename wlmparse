@@ -16,11 +16,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+set +H
 ###########################################################################################
 #
 #PARSE DESKTOP ENTRIES
 #PARSE DESKTOP ENTRIES
-DesktopFileData=$(awk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
+DesktopFileData=$(gawk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
 ENDFILE {print "[Desktop Entry]#" filenum; \
 print "PhysicalFileName=" FILENAME "#" filenum; \
 print "Enabled=#" filenum; \
@@ -40,7 +41,7 @@ filenum+=1}' \
 
 
 
-DesktopFileDataList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
+DesktopFileDataArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
 -e 's/^ *Name *= */001#/' \
 -e 's/^ *Comment *= */002#/' \
 -e 's/^ *Type *= */003#/' \
@@ -56,12 +57,10 @@ DesktopFileDataList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -
 -e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -nk 3,3 -k1,1 -u | sed -e 's/#[[:digit:]]\+$//g' -e 's/012#/\r/g' )
 
 
-DesktopFileDataList=${DesktopFileDataList//$'\n'$'\r'$'\n'/$'\r'}
+DesktopFileDataArray=${DesktopFileDataArray//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-DesktopFileDataArray=(${DesktopFileDataList//$'\n'$'\r'/})
+DesktopFileDataArray=(${DesktopFileDataArray//$'\n'$'\r'/})
 unset IFS
-
-unset DesktopFileDataList
 #
 ###########################################################################################
 
@@ -70,15 +69,15 @@ unset DesktopFileDataList
 ###########################################################################################
 #
 #Get NeedsFiles
-NeedsFilesList=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
+NeedsFilesArray=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
 -e 's/^ *NeedsFile *= */000#/' \
 -e 's/^ *PhysicalFileName *= */001#/' \
 -e 's/^ *EOF *= */002#/' \
 -e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/002#/\r/g')
 
-NeedsFilesList=${NeedsFilesList//$'\n'$'\r'$'\n'/$'\r'}
+NeedsFilesArray=${NeedsFilesArray//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
-NeedsFilesArray=(${NeedsFilesList//$'\n'$'\r'/})
+NeedsFilesArray=(${NeedsFilesArray//$'\n'$'\r'/})
 unset IFS
 
 #
@@ -103,7 +102,7 @@ do
   done
 done
 
-SeatHardwareList=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
+SeatHardwareArray=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
 -re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#000#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */000#001#\1#/" \
 -re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */000#002#\1#/" \
@@ -116,9 +115,10 @@ SeatHardwareList=$(echo "$DesktopFileData"$'\n'"$DesktopFileBackendArrayPlacehol
 -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#102#/\1#FB#/g' | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#999#999#/\r/g')
 
 
-SeatHardwareList=${SeatHardwareList//$'\n'$'\r'$'\n'/$'\r'}
+SeatHardwareArray=${SeatHardwareArray//$'\n'$'\r'$'\n'/$'\r'}
 IFS=$'\r'
 SeatHardwareArray=(${SeatHardwareList//$'\n'$'\r'/})
 unset IFS
 #
 ########################################################################################### 
+
