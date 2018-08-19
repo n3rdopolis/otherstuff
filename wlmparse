@@ -19,14 +19,12 @@
 set +H
 ###########################################################################################
 
-
-
-
-#TODO, handle =, handle whitespace at starts of lines, mainarray
-
+unset DesktopFileDataArrays
+unset NeedsFileArrays
+unset SeatBackendArrays
 
 SeatBackendArrayElementOffset=5
-for WSESSIONFILE in /home/nerdopolis/Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop
+for WSESSIONFILE in /usr/share/wsessions.d/*.desktop
 do
   #read up to 16385 bytes from the config file, if it is 16385 bytes ignore it
   #The most accepted bytes is 16384, or 16KB, which is more than enough
