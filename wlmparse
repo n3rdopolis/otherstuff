@@ -24,7 +24,7 @@ set +H
 
 #TODO, handle =, handle whitespace at starts of lines, mainarray
 
-HandledFileCount=0
+
 SeatBackendArrayElementOffset=5
 for WSESSIONFILE in /home/nerdopolis/Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop
 do
@@ -49,21 +49,21 @@ do
   readarray -t WSESSIONFILEDATA <<< "$WSESSIONFILEDATA"
 
   #Build the initial array for the main keys
-  WSESSIONFILEARRAY=""
+  DesktopFileDataArrays=""
   for Iterator in {000..012}
   do
-    if [[ ! -z $WSESSIONFILEARRAY ]]
+    if [[ ! -z $DesktopFileDataArrays ]]
     then
-      WSESSIONFILEARRAY+=$'\n'
+      DesktopFileDataArrays+=$'\n'
     fi
-    WSESSIONFILEARRAY+=${Iterator}"#"
+    DesktopFileDataArrays+=${Iterator}"#"
   done
-  WSESSIONFILEARRAY+=$'\r'
-  readarray -t WSESSIONFILEARRAY <<< "$WSESSIONFILEARRAY"
+  DesktopFileDataArrays+=$'\r'
+  readarray -t DesktopFileDataArrays <<< "$DesktopFileDataArrays"
 
   #Build the initial array for the NeedsFile list
   NeedsFileArray=()
-  NeedsFileArray+=("$WSESSIONFILE")
+  NeedsFileArray+=("001#$WSESSIONFILE")
 
   #Build the initial array for the backend support table
   SeatBackendArray=""
@@ -75,7 +75,7 @@ do
       then
         SeatBackendArray+=$'\n'
       fi
-      SeatBackendArray+=${Iterator}"#"${BACKEND}"#"
+      SeatBackendArray+="000#"${Iterator}"#"${BACKEND}"#"
     done
   done
   readarray -t SeatBackendArray <<< "$SeatBackendArray"
@@ -122,41 +122,43 @@ do
     #Set the NeedFile
     if [[ $KeyName == NeedsFile ]]
     then
-      NeedsFileArray+=($KeyValue)
+      NeedsFileArray+=("000#$KeyValue")
       continue
     fi
 
-    ChangeArrayOffset=-1
+    ChangeArrayElement=-1
     case $KeyName in
       Enabled)
-        ChangeArrayOffset=0;;
+        ChangeArrayElement=0;;
       Name)
-        ChangeArrayOffset=1;;
+        ChangeArrayElement=1;;
       Comment)
-        ChangeArrayOffset=2;;
+        ChangeArrayElement=2;;
       Type)
-        ChangeArrayOffset=3;;
+        ChangeArrayElement=3;;
       IsFallbackSession)
-        ChangeArrayOffset=4;;
+        ChangeArrayElement=4;;
       CompositorDisplayArgument)
-        ChangeArrayOffset=5;;
+        ChangeArrayElement=5;;
       CompositorSeatArgument)
-        ChangeArrayOffset=6;;
+        ChangeArrayElement=6;;
       SessionArgument)
-        ChangeArrayOffset=7;;
+        ChangeArrayElement=7;;
       AdditionalArguments)
-        ChangeArrayOffset=8;;
+        ChangeArrayElement=8;;
       CompositorExec)
-        ChangeArrayOffset=9;;
+        ChangeArrayElement=9;;
       EnvironmentFile)
-        ChangeArrayOffset=10;;
+        ChangeArrayElement=10;;
     esac
 
-    if [[ $ChangeArrayOffset != -1 ]]
+    if [[ $ChangeArrayElement != -1 ]]
     then
-      printf -v OffsetID "%03d" $ChangeArrayOffset
-      echo $OffsetID
-
+      printf -v OffsetID "%03d" $ChangeArrayElement
+      if [[ ${DesktopFileDataArrays[$ChangeArrayElement]} == "$OffsetID#" ]]
+      then
+        DesktopFileDataArrays[$ChangeArrayElement]="$OffsetID#$KeyValue"
+      fi
       continue
     fi
 
@@ -170,13 +172,13 @@ do
         ChangeArrayOffset=-1
         if [[ $BACKEND == KMS ]]
         then
-          SeatBackendArrayMultiplicand=0
+          ChangeArrayMultiplicand=0
         elif [[ $BACKEND == WL ]]
         then
-          SeatBackendArrayMultiplicand=1
+          ChangeArrayMultiplicand=1
         elif [[ $BACKEND == FB ]]
         then
-          SeatBackendArrayMultiplicand=2
+          ChangeArrayMultiplicand=2
         fi
 
         if [[ $KeyName =~ CompositorSupports${BACKEND} ]]
@@ -199,22 +201,59 @@ do
         if [[ $ChangeArrayOffset != -1 ]]
         then
           printf -v OffsetID "%03d" $ChangeArrayOffset
-          BackendArrayChangeElement=$(( (SeatBackendArrayElementOffset * SeatBackendArrayMultiplicand) + ChangeArrayOffset ))
-          if [[ ${SeatBackendArray[$BackendArrayChangeElement]} == "$OffsetID#${BACKEND}#" ]]
+          ChangeArrayElement=$(( (SeatBackendArrayElementOffset * ChangeArrayMultiplicand) + ChangeArrayOffset ))
+          if [[ ${SeatBackendArray[$ChangeArrayElement]} == "000#$OffsetID#${BACKEND}#" ]]
           then
-            SeatBackendArray[$BackendArrayChangeElement]="$OffsetID#${BACKEND}#$KeyValue"
+            SeatBackendArray[$ChangeArrayElement]="000#$OffsetID#${BACKEND}#$KeyValue"
           fi
         fi
       done
     fi
-
-
   done
 
+  FirstElement=0
+  for Element in "${DesktopFileDataArray[@]}"
+  do
+    if [[ $FirstElement != 0 ]]
+    then
+      DesktopFileDataArrays+=$'\n'
+    fi
+    DesktopFileDataArrays+=$Element
+    FirstElement=1
+  done
+  DesktopFileDataArrays+=$'\r'
+  unset DesktopFileDataArray
+
+  FirstElement=0
+  for Element in "${NeedsFileArray[@]}"
+  do
+    if [[ $FirstElement != 0 ]]
+    then
+      NeedsFileArrays+=$'\n'
+    fi
+    NeedsFileArrays+=$Element
+    FirstElement=1
+  done
+  NeedsFileArrays+=$'\r'
+  unset DesktopFileDataArray
+
+  FirstElement=0
+  for Element in "${SeatBackendArray[@]}"
+  do
+    if [[ $FirstElement != 0 ]]
+    then
+      SeatBackendArrays+=$'\n'
+    fi
+    SeatBackendArrays+=$Element
+    FirstElement=1
+  done
+  SeatBackendArrays+=$'\r'
+  unset DesktopFileDataArray
 
 
-  #unset WSESSIONFILEDATA
-  ((HandledFileCount++))
+  unset WSESSIONFILEDATA
 done
-unset WSESSIONFILELIST
 
+IFS=$'\r'
+SeatBackendArrays=($SeatBackendArrays)
+unset IFS
