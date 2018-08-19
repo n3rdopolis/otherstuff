@@ -18,107 +18,152 @@
 
 set +H
 ###########################################################################################
-#
-#PARSE DESKTOP ENTRIES
-#PARSE DESKTOP ENTRIES
-DesktopFileData=$(gawk 'BEGIN{filenum+=1} {print $0 "#" filenum} \
-ENDFILE {print "[Desktop Entry]#" filenum; \
-print "PhysicalFileName=" FILENAME "#" filenum; \
-print "Enabled=#" filenum; \
-print "Name=#" filenum; \
-print "Comment=#" filenum; \
-print "Type=#" filenum; \
-print "IsFallbackSession=#" filenum; \
-print "CompositorDisplayArgument=#" filenum; \
-print "CompositorSeatArgument=#" filenum; \
-print "SessionArgument=#" filenum; \
-print "AdditionalArguments=#" filenum; \
-print "CompositorExec=#" filenum; \
-print "EnvironmentFile=#" filenum; \
-print "EOF=#" filenum; \
-filenum+=1}' \
-/usr/share/wsessions.d/*.desktop | awk '/\[Desktop Entry]/{flag=1;next}/\[/{flag=0}flag' )
 
 
 
-DesktopFileDataArrays=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' -e 's/^ *Enabled *= */000#/' \
--e 's/^ *Name *= */001#/' \
--e 's/^ *Comment *= */002#/' \
--e 's/^ *Type *= */003#/' \
--e 's/^ *IsFallbackSession *= */004#/' \
--e 's/^ *CompositorDisplayArgument *= */005#/' \
--e 's/^ *CompositorSeatArgument *= */006#/' \
--e 's/^ *SessionArgument *= */007#/' \
--e 's/^ *AdditionalArguments *= */008#/' \
--e 's/^ *CompositorExec *= */009#/' \
--e 's/^ *EnvironmentFile *= */010#/' \
--e 's/^ *PhysicalFileName *= */011#/' \
--e 's/^ *EOF *= */012#/' \
--e "/^[0-9][0-9][0-9]#/!d" | sort -t "#" -nk 3,3 -k1,1 -u | sed -e 's/#[[:digit:]]\+$//g' -e 's/012#/\r/g' )
 
+#TODO, handle =, handle whitespace at starts of lines, mainarray
 
-DesktopFileDataArrays=${DesktopFileDataArrays//$'\n'$'\r'$'\n'/$'\r'}
-IFS=$'\r'
-DesktopFileDataArrays=(${DesktopFileDataArrays//$'\n'$'\r'/})
-unset IFS
-DesktopFileCount=${#DesktopFileDataArrays[@]}
-#
-###########################################################################################
-
-
-
-###########################################################################################
-#
-#Get NeedsFile
-NeedsFileArrays=$(echo "$DesktopFileData" | sed -e 's/[0-9][0-9][0-9]#//g' \
--e 's/^ *NeedsFile *= */000#/' \
--e 's/^ *PhysicalFileName *= */001#/' \
--e 's/^ *EOF *= */002#/' \
--e "/[0-9][0-9][0-9]#/!d" | perl -pe 's/\$(\w+)/$ENV{$1}/g' | sort -t "#" -k 3,3 -k 1,1 | sed -e 's/#[[:digit:]]\+$//g' -e 's/002#/\r/g')
-
-NeedsFileArrays=${NeedsFileArrays//$'\n'$'\r'$'\n'/$'\r'}
-IFS=$'\r'
-NeedsFileArrays=(${NeedsFileArrays//$'\n'$'\r'/})
-unset IFS
-
-#
-###########################################################################################
-
-###########################################################################################
-#
-#Get Seat HW support
-
-SeatHardwareArrayPlaceholders=""
-for (( iterator=1 ; iterator <= $DesktopFileCount ; iterator++ ))
+HandledFileCount=0
+SeatBackendArrayElementOffset=5
+for WSESSIONFILE in /home/nerdopolis/Desktop/rebeccablacklinux/rebeccablackos_files/usr/share/wsessions.d/*.desktop
 do
+  #read up to 16385 bytes from the config file, if it is 16385 bytes ignore it
+  #The most accepted bytes is 16384, or 16KB, which is more than enough
+  if [[ -f "$WSESSIONFILE" ]]
+  then
+    read -r -n 16385 -d $'\r' WSESSIONFILEDATA 2>/dev/null < "$WSESSIONFILE"
+  else
+    WriteToLog "$WSESSIONFILE is not a file"
+    continue
+  fi
+
+  #If the file is too large
+  if [[ ${#WSESSIONFILEDATA} == 16385 ]]
+  then
+    WriteToLog "$WSESSIONFILE is too large, and will be ignored"
+    continue
+  fi
+
+  #Convert the file data to an array
+  readarray -t WSESSIONFILEDATA <<< "$WSESSIONFILEDATA"
+
+  #Build the initial array for the main keys
+  WSESSIONFILEARRAY=""
+  for Iterator in {000..012}
+  do
+    if [[ ! -z $WSESSIONFILEARRAY ]]
+    then
+      WSESSIONFILEARRAY+=$'\n'
+    fi
+    WSESSIONFILEARRAY+=${Iterator}"#"
+  done
+  WSESSIONFILEARRAY+=$'\r'
+  readarray -t WSESSIONFILEARRAY <<< "$WSESSIONFILEARRAY"
+
+  #Build the initial array for the NeedsFile list
+  NeedsFileArray=()
+  NeedsFileArray+=("$WSESSIONFILE")
+
+  #Build the initial array for the backend support table
+  SeatBackendArray=""
   for BACKEND in KMS WL FB
   do
-    HardwarePlaceHolders=""
-    HardwarePlaceHolders+=$'\n'"CompositorSupports${BACKEND}=#$iterator"
-    HardwareHolders+=$'\n'"Compositor${BACKEND}Arguments=#$iterator"
-    HardwarePlaceHolders+=$'\n'"Compositor${BACKEND}SeatAware=#$iterator"
-    HardwarePlaceHolders+=$'\n'"Compositor${BACKEND}SeatArgument=#$iterator"
-    SeatHardwareArrayPlaceholders+=$'\n'$HardwarePlaceHolders$'\n'
+    for Iterator in {000..004}
+    do
+      if [[ ! -z $SeatBackendArray ]]
+      then
+        SeatBackendArray+=$'\n'
+      fi
+      SeatBackendArray+=${Iterator}"#"${BACKEND}"#"
+    done
   done
+  readarray -t SeatBackendArray <<< "$SeatBackendArray"
+
+  #Handle all the valid lines in the file
+  ParseINISegment=0
+  for WSESSIONLINE in "${WSESSIONFILEDATA[@]}"
+  do
+    if [[ $ParseINISegment == 1 && $WSESSIONLINE =~ ^[[:space:]]*"["  ]]
+    then
+      ParseINISegment=0
+    fi
+    if [[ $WSESSIONLINE == "[Desktop Entry]" ]]
+    then
+      ParseINISegment=1
+      continue
+    fi
+    if [[ $ParseINISegment == 0 ]]
+    then
+      continue
+    fi
+
+    IFS="="
+    WSESSIONLINE=($WSESSIONLINE)
+    unset IFS
+
+    #Set the NeedFile
+    if [[ ${WSESSIONLINE[0]} == NeedsFile ]]
+    then
+      NeedsFileArray+=(${WSESSIONLINE[1]})
+    fi
+
+    #If the line is for a backend, determine what element to set on the backend array
+    #Each backend has a number elements each, and are always in order KMS, WL, FB
+    #The number of elements are fixed place for if it's supports the backend, arguments for the backend, if the backend supports seats, ect.
+    if [[ ${WSESSIONLINE[0]} =~ [a-Z]*KMS[a-Z]* || ${WSESSIONLINE[0]} =~ [a-Z]*WL[a-Z]* || ${WSESSIONLINE[0]} =~ [a-Z]*FB[a-Z]* ]]
+    then
+      for BACKEND in KMS WL FB
+      do
+        SeatBackendArrayOffset=-1
+        if [[ $BACKEND == KMS ]]
+        then
+          SeatBackendArrayMultiplicand=0
+        elif [[ $BACKEND == WL ]]
+        then
+          SeatBackendArrayMultiplicand=1
+          elif [[ $BACKEND == FB ]]
+        then
+          SeatBackendArrayMultiplicand=2
+        fi
+
+
+        if [[ ${WSESSIONLINE[0]} =~ CompositorSupports${BACKEND} ]]
+        then
+          SeatBackendArrayOffset=0
+        fi
+        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}SeatAware ]]
+        then
+          SeatBackendArrayOffset=1
+        fi
+        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}Arguments ]]
+        then
+          SeatBackendArrayOffset=2
+        fi
+        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}SeatArgument ]]
+        then
+          SeatBackendArrayOffset=3
+        fi
+
+        if [[ $SeatBackendArrayOffset != -1 ]]
+        then
+          printf -v OffsetID "%03d" $SeatBackendArrayOffset
+          BackendArrayChangeElement=$(( (SeatBackendArrayElementOffset * SeatBackendArrayMultiplicand) + SeatBackendArrayOffset ))
+          if [[ ${SeatBackendArray[$BackendArrayChangeElement]} == "$OffsetID#${BACKEND}#" ]]
+          then
+            SeatBackendArray[$BackendArrayChangeElement]="$OffsetID#${BACKEND}#${WSESSIONLINE[1]}"
+          fi
+        fi
+      done
+    fi
+
+
+  done
+
+
+
+  #unset WSESSIONFILEDATA
+  ((HandledFileCount++))
 done
-
-SeatHardwareArrays=$(echo "$DesktopFileData"$'\n'"$SeatHardwareArrayPlaceholders" | sed  -e 's/[0-9][0-9][0-9]#//g' \
--re "s/^ *CompositorSupports(KMS|WL|FB) *= */000#000#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)Arguments *= */000#001#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)SeatAware *= */000#002#\1#/" \
--re  "s/^ *Compositor(KMS|WL|FB)SeatArgument *= */000#003#\1#/" \
--e 's/^ *EOF *= */001#999#999#/' \
--e "/^[0-9][0-9][0-9]#/!d" | sed -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#KMS#/\1#100#/g' \
--re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#WL#/\1#101#/g' \
--re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#FB#/\1#102#/g' | sort -t "#"  -k5,5 -k1,1 -u -k3,3 -k2,2 | sed -re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#100#/\1#KMS#/g' \
--re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#101#/\1#WL#/g' \
--re 's/^([0-9][0-9][0-9]#[0-9][0-9][0-9])#102#/\1#FB#/g' | sed -e 's/#[[:digit:]]\+$//g' -e 's/001#999#999#/\r/g')
-
-
-SeatHardwareArrays=${SeatHardwareArrays//$'\n'$'\r'$'\n'/$'\r'}
-IFS=$'\r'
-SeatHardwareArrays=(${SeatHardwareArrays//$'\n'$'\r'/})
-unset IFS
-#
-########################################################################################### 
+unset WSESSIONFILELIST
 
