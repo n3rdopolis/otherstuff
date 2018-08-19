@@ -84,6 +84,9 @@ do
   ParseINISegment=0
   for WSESSIONLINE in "${WSESSIONFILEDATA[@]}"
   do
+    WSESSIONLINE="${WSESSIONLINE##*( )}"
+    WSESSIONLINE="${WSESSIONLINE%%*( )}"
+
     if [[ $ParseINISegment == 1 && $WSESSIONLINE =~ ^[[:space:]]*"["  ]]
     then
       ParseINISegment=0
@@ -98,60 +101,108 @@ do
       continue
     fi
 
+    WSESSIONLINELASTCHAR=${WSESSIONLINE:$((${#WSESSIONLINE} -1 )):1}
     IFS="="
     WSESSIONLINE=($WSESSIONLINE)
     unset IFS
 
-    #Set the NeedFile
-    if [[ ${WSESSIONLINE[0]} == NeedsFile ]]
+    KeyName=${WSESSIONLINE[0]}
+    KeyName="${KeyName##*( )}"
+    KeyName="${KeyName%%*( )}"
+
+    printf -v KeyValue "=%s" "${WSESSIONLINE[@]:1}"
+    KeyValue=${KeyValue:1}
+    KeyValue="${KeyValue##*( )}"
+    KeyValue="${KeyValue%%*( )}"
+    if [[ $WSESSIONLINELASTCHAR == "=" ]]
     then
-      NeedsFileArray+=(${WSESSIONLINE[1]})
+      KeyValue+=$WSESSIONLINELASTCHAR
+    fi
+
+    #Set the NeedFile
+    if [[ $KeyName == NeedsFile ]]
+    then
+      NeedsFileArray+=($KeyValue)
+      continue
+    fi
+
+    ChangeArrayOffset=-1
+    case $KeyName in
+      Enabled)
+        ChangeArrayOffset=0;;
+      Name)
+        ChangeArrayOffset=1;;
+      Comment)
+        ChangeArrayOffset=2;;
+      Type)
+        ChangeArrayOffset=3;;
+      IsFallbackSession)
+        ChangeArrayOffset=4;;
+      CompositorDisplayArgument)
+        ChangeArrayOffset=5;;
+      CompositorSeatArgument)
+        ChangeArrayOffset=6;;
+      SessionArgument)
+        ChangeArrayOffset=7;;
+      AdditionalArguments)
+        ChangeArrayOffset=8;;
+      CompositorExec)
+        ChangeArrayOffset=9;;
+      EnvironmentFile)
+        ChangeArrayOffset=10;;
+    esac
+
+    if [[ $ChangeArrayOffset != -1 ]]
+    then
+      printf -v OffsetID "%03d" $ChangeArrayOffset
+      echo $OffsetID
+
+      continue
     fi
 
     #If the line is for a backend, determine what element to set on the backend array
     #Each backend has a number elements each, and are always in order KMS, WL, FB
     #The number of elements are fixed place for if it's supports the backend, arguments for the backend, if the backend supports seats, ect.
-    if [[ ${WSESSIONLINE[0]} =~ [a-Z]*KMS[a-Z]* || ${WSESSIONLINE[0]} =~ [a-Z]*WL[a-Z]* || ${WSESSIONLINE[0]} =~ [a-Z]*FB[a-Z]* ]]
+    if [[ $KeyName =~ [a-Z]*KMS[a-Z]* || $KeyName =~ [a-Z]*WL[a-Z]* || $KeyName =~ [a-Z]*FB[a-Z]* ]]
     then
       for BACKEND in KMS WL FB
       do
-        SeatBackendArrayOffset=-1
+        ChangeArrayOffset=-1
         if [[ $BACKEND == KMS ]]
         then
           SeatBackendArrayMultiplicand=0
         elif [[ $BACKEND == WL ]]
         then
           SeatBackendArrayMultiplicand=1
-          elif [[ $BACKEND == FB ]]
+        elif [[ $BACKEND == FB ]]
         then
           SeatBackendArrayMultiplicand=2
         fi
 
+        if [[ $KeyName =~ CompositorSupports${BACKEND} ]]
+        then
+          ChangeArrayOffset=0
+        fi
+        if [[ $KeyName =~ Compositor${BACKEND}SeatAware ]]
+        then
+          ChangeArrayOffset=1
+        fi
+        if [[ $KeyName =~ Compositor${BACKEND}Arguments ]]
+        then
+          ChangeArrayOffset=2
+        fi
+        if [[ $KeyName =~ Compositor${BACKEND}SeatArgument ]]
+        then
+          ChangeArrayOffset=3
+        fi
 
-        if [[ ${WSESSIONLINE[0]} =~ CompositorSupports${BACKEND} ]]
+        if [[ $ChangeArrayOffset != -1 ]]
         then
-          SeatBackendArrayOffset=0
-        fi
-        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}SeatAware ]]
-        then
-          SeatBackendArrayOffset=1
-        fi
-        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}Arguments ]]
-        then
-          SeatBackendArrayOffset=2
-        fi
-        if [[ ${WSESSIONLINE[0]} =~ Compositor${BACKEND}SeatArgument ]]
-        then
-          SeatBackendArrayOffset=3
-        fi
-
-        if [[ $SeatBackendArrayOffset != -1 ]]
-        then
-          printf -v OffsetID "%03d" $SeatBackendArrayOffset
-          BackendArrayChangeElement=$(( (SeatBackendArrayElementOffset * SeatBackendArrayMultiplicand) + SeatBackendArrayOffset ))
+          printf -v OffsetID "%03d" $ChangeArrayOffset
+          BackendArrayChangeElement=$(( (SeatBackendArrayElementOffset * SeatBackendArrayMultiplicand) + ChangeArrayOffset ))
           if [[ ${SeatBackendArray[$BackendArrayChangeElement]} == "$OffsetID#${BACKEND}#" ]]
           then
-            SeatBackendArray[$BackendArrayChangeElement]="$OffsetID#${BACKEND}#${WSESSIONLINE[1]}"
+            SeatBackendArray[$BackendArrayChangeElement]="$OffsetID#${BACKEND}#$KeyValue"
           fi
         fi
       done
