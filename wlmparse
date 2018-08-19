@@ -49,17 +49,16 @@ do
   readarray -t WSESSIONFILEDATA <<< "$WSESSIONFILEDATA"
 
   #Build the initial array for the main keys
-  DesktopFileDataArrays=""
+  DesktopFileDataArray=""
   for Iterator in {000..012}
   do
-    if [[ ! -z $DesktopFileDataArrays ]]
+    if [[ ! -z $DesktopFileDataArray ]]
     then
-      DesktopFileDataArrays+=$'\n'
+      DesktopFileDataArray+=$'\n'
     fi
-    DesktopFileDataArrays+=${Iterator}"#"
+    DesktopFileDataArray+=${Iterator}"#"
   done
-  DesktopFileDataArrays+=$'\r'
-  readarray -t DesktopFileDataArrays <<< "$DesktopFileDataArrays"
+  readarray -t DesktopFileDataArray <<< "$DesktopFileDataArray"
 
   #Build the initial array for the NeedsFile list
   NeedsFileArray=()
@@ -155,9 +154,9 @@ do
     if [[ $ChangeArrayElement != -1 ]]
     then
       printf -v OffsetID "%03d" $ChangeArrayElement
-      if [[ ${DesktopFileDataArrays[$ChangeArrayElement]} == "$OffsetID#" ]]
+      if [[ ${DesktopFileDataArray[$ChangeArrayElement]} == "$OffsetID#" ]]
       then
-        DesktopFileDataArrays[$ChangeArrayElement]="$OffsetID#$KeyValue"
+        DesktopFileDataArray[$ChangeArrayElement]="$OffsetID#$KeyValue"
       fi
       continue
     fi
@@ -255,5 +254,7 @@ do
 done
 
 IFS=$'\r'
+DesktopFileDataArrays=($DesktopFileDataArrays)
+NeedsFileArrays=($NeedsFileArrays)
 SeatBackendArrays=($SeatBackendArrays)
 unset IFS
