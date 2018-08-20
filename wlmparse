@@ -40,7 +40,7 @@ function ParseWSessionFiles
     fi
 
     #If the file is too large
-    if [[ ${#WSESSIONFILEDATA} == 16385 ]]
+    if [[ ${#WSESSIONFILEDATA} -ge 16385 ]]
     then
       WriteToLog "$WSESSIONFILE is too large, and will be ignored"
       continue
@@ -70,7 +70,7 @@ function ParseWSessionFiles
     SeatBackendArray=""
     for BACKEND in KMS WL FB
     do
-      for Iterator in {000..004}
+      for Iterator in {000..003}
       do
         if [[ ! -z $SeatBackendArray ]]
         then
@@ -111,13 +111,16 @@ function ParseWSessionFiles
       KeyName="${KeyName##*( )}"
       KeyName="${KeyName%%*( )}"
 
-      printf -v KeyValue "=%s" "${WSESSIONLINE[@]:1}"
-      KeyValue=${KeyValue:1}
-      KeyValue="${KeyValue##*( )}"
-      KeyValue="${KeyValue%%*( )}"
-      if [[ $WSESSIONLINELASTCHAR == "=" ]]
+      if [[ ${#WSESSIONLINE[@]} -gt 1 ]]
       then
-        KeyValue+=$WSESSIONLINELASTCHAR
+        printf -v KeyValue "=%s" "${WSESSIONLINE[@]:1}"
+        KeyValue=${KeyValue:1}
+        KeyValue="${KeyValue##*( )}"
+        KeyValue="${KeyValue%%*( )}"
+        if [[ $WSESSIONLINELASTCHAR == "=" ]]
+        then
+          KeyValue+=$WSESSIONLINELASTCHAR
+        fi
       fi
 
       #Set the NeedFile
