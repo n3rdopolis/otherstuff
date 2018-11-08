@@ -1,0 +1,60 @@
+qtwayland          is git://code.qt.io/qt/qtwayland.git                   at 88851b6de433ab25047166bf4708e99e111b7af2
+qtwayland-backport is https://github.com/johanhelsing/qtwayland-backports at 9d7f516ce54c26399409fb181d4a355d91c34a58
+(Excluding .git/ folders manually)
+This is the two folders diff'ed
+
+Use this if you have Qt 5.11 and want to use QtWayland 5.12
+
+diff -ur src/client/qwaylanddnd.cpp src/client/qwaylanddnd.cpp
+--- src/client/qwaylanddnd.cpp	2018-11-06 19:33:32.873900563 -0500
++++ src/client/qwaylanddnd.cpp	2018-11-06 19:31:54.789509539 -0500
+@@ -77,19 +77,15 @@
+     m_display->currentInputDevice()->dataDevice()->cancelDrag();
+ }
+ 
+-void QWaylandDrag::move(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
++void QWaylandDrag::move(const QPoint &globalPos)
+ {
+     Q_UNUSED(globalPos);
+-    Q_UNUSED(b);
+-    Q_UNUSED(mods);
+     // Do nothing
+ }
+ 
+-void QWaylandDrag::drop(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods)
++void QWaylandDrag::drop(const QPoint &globalPos)
+ {
+     Q_UNUSED(globalPos);
+-    Q_UNUSED(b);
+-    Q_UNUSED(mods);
+     // Do nothing
+ }
+ 
+diff -ur src/client/qwaylanddnd_p.h src/client/qwaylanddnd_p.h
+--- src/client/qwaylanddnd_p.h	2018-11-06 19:33:32.873900563 -0500
++++ src/client/qwaylanddnd_p.h	2018-11-06 19:31:54.789509539 -0500
+@@ -78,8 +78,8 @@
+ protected:
+     void startDrag() override;
+     void cancel() override;
+-    void move(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
+-    void drop(const QPoint &globalPos, Qt::MouseButtons b, Qt::KeyboardModifiers mods) override;
++    void move(const QPoint &globalPos) override;
++    void drop(const QPoint &globalPos) override;
+     void endDrag() override;
+ 
+ 
+diff -ur src/client/qwaylandwindow.cpp src/client/qwaylandwindow.cpp
+--- src/client/qwaylandwindow.cpp	2018-11-06 19:33:32.881900596 -0500
++++ src/client/qwaylandwindow.cpp	2018-11-06 19:31:54.789509539 -0500
+@@ -594,8 +594,9 @@
+ 
+     self->mWaitingForFrameSync = false;
+     if (self->mUpdateRequested) {
++        QWindowPrivate *w = QWindowPrivate::get(self->window());
+         self->mUpdateRequested = false;
+-        self->deliverUpdateRequest();
++        w->deliverUpdateRequest();
+     }
+ }
+ 
