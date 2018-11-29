@@ -1,0 +1,165 @@
+#! /bin/bash
+
+#Allow Exclamation points to be used in commands by turning off the history
+set +H
+
+echo "Warning: This tries to create GB worth of files in /tmp."
+read a
+
+mkdir /tmp/kiocopy
+mkdir /tmp/kiocopy/folder_src
+mkdir /tmp/kiocopy/folder_dest
+
+truncate --size 50G /tmp/kiocopy/fsimg_src
+truncate --size 50G /tmp/kiocopy/fsimg_dest
+mkfs.ext4  /tmp/kiocopy/fsimg_src
+mkfs.btrfs /tmp/kiocopy/fsimg_dest
+
+sudo mount -o loop  /tmp/kiocopy/fsimg_src /tmp/kiocopy/folder_src
+if [[ $? != 0 ]]
+then
+  echo "EXT4 FS failed to mount"
+  exit
+fi
+sudo mount -o loop  /tmp/kiocopy/fsimg_dest /tmp/kiocopy/folder_dest
+if [[ $? != 0 ]]
+then
+  echo "BTRFS FS failed to mount"
+  exit
+fi
+
+sudo chown $UID /tmp/kiocopy/fsimg_src
+sudo chown $UID /tmp/kiocopy/fsimg_dest
+
+export QT_LOGGING_RULES=kf5.kio.*=true
+
+#Test tons of tiny files
+mkdir /tmp/kiocopy/folder_src/tinyfiles
+for i in {0..100000}
+do
+  dd if=/dev/zero ibs=2k count=1 of=/tmp/kiocopy/fsimg_src/tinyfiles/$i
+done
+
+#Test files with script breaking symbols
+SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "!" )
+mkdir /tmp/kiocopy/folder_src/sillyfiles
+for SillyChar in "${SillyChars[@]}"
+do
+  dd if=/dev/zero ibs=2k count=1 of=/tmp/kiocopy/fsimg_src/sillyfiles/"File${SillyChar}Name"
+done
+
+
+#Generate random char of type
+#0=lowercase
+#1=uppercase
+#2=number
+#4=silly chars that break scripts and parsing
+#5=Odd ascii/unicode points
+function CreateRandomChar {
+  CharType=$1
+  LowercaseChars=(a b c d e f g h i j k l m n o p q r s t u v w x y z â ä à å ç ê ë è ï î ì æ)
+  UppercaseChars=(A B C D E F G H I J K L M N O P Q R S T U V W X W Z Ä Å Ä É Æ)
+  WhitespaceChars=(" ")
+  NumberChars=(0 1 2 3 4 5 6 7 8 9)
+  SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "." "," "-")
+  OddChars=("©" "¾" "📋" "🐧" "䉎" "𖡒" "ԑ" "ĳ" "®" "╚")
+  if [[ $CharType == 0 ]]
+  then
+    MaxElement=${#LowercaseChars[@]}
+    ChooseElement=$(( $RANDOM % $MaxElement ))
+    ChooseChar=${LowercaseChars[$ChooseElement]}
+  elif [[ $CharType == 1 ]]
+  then
+    MaxElement=${#UppercaseChars[@]}
+    ChooseElement=$(( $RANDOM % $MaxElement ))
+    ChooseChar=${UppercaseChars[$ChooseElement]}
+  elif [[ $CharType == 2 ]]
+  then
+    MaxElement=${#NumberChars[@]}
+    ChooseElement=$(( $RANDOM % $MaxElement ))
+    ChooseChar=${NumberChars[$ChooseElement]}
+  elif [[ $CharType == 3 ]]
+  then
+    MaxElement=${#SillyChars[@]}
+    ChooseElement=$(( $RANDOM % $MaxElement ))
+    ChooseChar=${SillyChars[$ChooseElement]}
+  elif [[ $CharType == 4 ]]
+  then
+    MaxElement=${#OddChars[@]}
+    ChooseElement=$(( $RANDOM % $MaxElement ))
+    ChooseChar=${OddChars[$ChooseElement]}
+  fi
+
+  echo $CharType $ChooseElement
+  if [[ ! -z $2 ]]
+  then
+    printf -v "$2" '%s' "$ChooseChar"
+  else
+    echo "$ChooseChar"
+  fi
+}
+
+function CreateObjectName {
+  IsFile=$1
+  if [[ $IsFile != 0 && $IsFile != 1 ]]
+  then
+    IsFile=0
+  fi
+
+  RandomSeed=$RANDOM
+  LengthHint=$(($RANDOM % 25))
+  if [[ $LengthHint -eq 0 ]]
+  then
+    Length=128
+  else
+    Length=$LengthHint
+  fi
+
+  NewName=""
+  for (( Itr=0 ; Itr < $Length ; Itr++ ))
+  do
+    NameCharType=$(($RANDOM % 5))
+    CreateRandomChar $NameCharType NameChar
+    NewName+=$NameChar
+  done
+  
+  if [[ $IsFile == 1 ]]
+  then
+    ExtChar1Type=$(($RANDOM % 3))
+    ExtChar2Type=$(($RANDOM % 3))
+    ExtChar3Type=$(($RANDOM % 3))
+    CreateRandomChar $ExtChar1Type ExtChar1
+    CreateRandomChar $ExtChar2Type ExtChar2
+    CreateRandomChar $ExtChar3Type ExtChar3
+    NewName+="."
+    NewName+=$ExtChar1
+    NewName+=$ExtChar2
+    NewName+=$ExtChar3
+  fi
+  echo $NewName
+}
+
+FolderList=()
+FolderList+=(/)
+function CreateFolder {
+  
+}
+
+#Test large files
+mkdir /tmp/kiocopy/folder_src/largefiles
+for i in {0..10}
+do
+  dd if=/dev/zero ibs=4G count=1 of=/tmp/kiocopy/fsimg_src/largefiles/$i
+done
+
+
+mkdir /tmp/kiocopy/logs
+kioclient copy /tmp/kiocopy/folder_src /tmp/kiocopy/folder_dest &> /tmp/kiocopy/logs/kioclient.log
+echo "$?" >> /tmp/kiocopy/report.log
+diff -rq /tmp/kiocopy/folder_src /tmp/kiocopy/folder_dest > /tmp/kiocopy/logs/folderdiff.txt
+tree /tmp/kiocopy/folder_src  > /tmp/kiocopy/logs/src_tree.txt
+tree /tmp/kiocopy/folder_dest > /tmp/kiocopy/logs/dest_tree.txt
+
+
+umount /tmp/kiocopy/fsimg_src
+umount /tmp/kiocopy/fsimg_dest
