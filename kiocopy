@@ -90,7 +90,6 @@ function CreateRandomChar {
     ChooseChar=${OddChars[$ChooseElement]}
   fi
 
-  echo $CharType $ChooseElement
   if [[ ! -z $2 ]]
   then
     printf -v "$2" '%s' "$ChooseChar"
@@ -99,6 +98,8 @@ function CreateRandomChar {
   fi
 }
 
+#First argument if if should be a file name or folder name
+#Second is argument with the name
 function CreateObjectName {
   IsFile=$1
   if [[ $IsFile != 0 && $IsFile != 1 ]]
@@ -136,7 +137,13 @@ function CreateObjectName {
     NewName+=$ExtChar2
     NewName+=$ExtChar3
   fi
-  echo $NewName
+
+  if [[ ! -z $2 ]]
+  then
+    printf -v "$2" '%s' "$NewName"
+  else
+    echo "$NewName"
+  fi
 }
 
 FolderList=()
