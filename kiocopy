@@ -39,8 +39,8 @@ then
   exit
 fi
 
-sudo chown $UID /tmp/kiocopy/$DateStamp/fsimg_src
-sudo chown $UID /tmp/kiocopy/$DateStamp/fsimg_dest
+sudo chown $UID /tmp/kiocopy/$DateStamp/folder_src
+sudo chown $UID /tmp/kiocopy/$DateStamp/folder_dest
 
 export QT_LOGGING_RULES=kf5.kio.*=true
 
@@ -171,6 +171,9 @@ function CreateObjectName {
   fi
 }
 
+#This creates Folders, it randomly selects the index of a folder, grabs the name, creates a random folder name
+#and creates the folder name, saving the full path to the array. this array of folders is used to create more folders
+#since the full path is in the array, and the name gets added.
 FolderList=()
 FolderList+=("/")
 function CreateFolder {
@@ -187,11 +190,12 @@ function CreateFolder {
   fi
   FolderList+=("$NewPath")
   
-  #TODO CREATE FOLDER
-  echo $NewPath
+  mkdir "/tmp/kiocopy/$DateStamp/folder_src/$NewPath"
 }
 
 
+#This creates files, it randomly selects the index of a folder, grabs the name, creates a random file name
+#and creates the file, saving the full path to an array
 FileList=()
 function CreateFile {
   FolderCount=${#FolderList[@]}
@@ -211,31 +215,37 @@ function CreateFile {
   echo $NewPath
 }
 
-
+#Create the Folder Tree
 echo "Creating folder tree..."
 for (( FolderItr=0 ; FolderItr < $MAX_FOLDER_COUNT ; FolderItr++ ))
 do
   CreateFolder
 done
 
-
+#Create the files
 echo "Creating files..."
 for (( FileItr=0 ; FileItr < $MAX_FILE_COUNT ; FileItr++ ))
 do
   CreateFile
 done
 
+#log folders
 mkdir /tmp/kiocopy/$DateStamp/logs
 for Folder in  "${FolderList[@]}"
 do
   echo $Folder >> /tmp/kiocopy/$DateStamp/logs/FolderList.txt
 done
 
+#Log files
 for File in  "${FileList[@]}"
 do
   echo $File >> /tmp/kiocopy/$DateStamp/logs/FileList.txt
 done
 
+
+
+
+#The actual test for trying to copy the folders, along with post logging.
 
 kioclient copy /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
