@@ -9,50 +9,40 @@ FILE_LENGTH_IF_ZERO=20
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
 
+MAX_FOLDER_COUNT=100000
+MAX_FILE_COUNT=10000000
+
 echo "Warning: This tries to create GB worth of files in /tmp."
 read a
 
+DateStamp=$(date +%s)
 mkdir /tmp/kiocopy
-mkdir /tmp/kiocopy/folder_src
-mkdir /tmp/kiocopy/folder_dest
+mkdir /tmp/kiocopy/$DateStamp
+mkdir /tmp/kiocopy/$DateStamp/folder_src
+mkdir /tmp/kiocopy/$DateStamp/folder_dest
 
-truncate --size $FS_SIZE /tmp/kiocopy/fsimg_src
-truncate --size $FS_SIZE /tmp/kiocopy/fsimg_dest
-mkfs.ext4  /tmp/kiocopy/fsimg_src
-mkfs.btrfs /tmp/kiocopy/fsimg_dest
+truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
+truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_dest
+mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
+mkfs.btrfs /tmp/kiocopy/$DateStamp/fsimg_dest
 
-sudo mount -o loop  /tmp/kiocopy/fsimg_src /tmp/kiocopy/folder_src
+sudo mount -o loop  /tmp/kiocopy/$DateStamp/fsimg_src /tmp/kiocopy/$DateStamp/folder_src
 if [[ $? != 0 ]]
 then
   echo "EXT4 FS failed to mount"
   exit
 fi
-sudo mount -o loop  /tmp/kiocopy/fsimg_dest /tmp/kiocopy/folder_dest
+sudo mount -o loop  /tmp/kiocopy/$DateStamp/fsimg_dest /tmp/kiocopy/$DateStamp/folder_dest
 if [[ $? != 0 ]]
 then
   echo "BTRFS FS failed to mount"
   exit
 fi
 
-sudo chown $UID /tmp/kiocopy/fsimg_src
-sudo chown $UID /tmp/kiocopy/fsimg_dest
+sudo chown $UID /tmp/kiocopy/$DateStamp/fsimg_src
+sudo chown $UID /tmp/kiocopy/$DateStamp/fsimg_dest
 
 export QT_LOGGING_RULES=kf5.kio.*=true
-
-#Test tons of tiny files
-mkdir /tmp/kiocopy/folder_src/tinyfiles
-for i in {0..100000}
-do
-  dd if=/dev/zero ibs=2k count=1 of=/tmp/kiocopy/fsimg_src/tinyfiles/$i
-done
-
-#Test files with script breaking symbols
-SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "!" )
-mkdir /tmp/kiocopy/folder_src/sillyfiles
-for SillyChar in "${SillyChars[@]}"
-do
-  dd if=/dev/zero ibs=2k count=1 of=/tmp/kiocopy/fsimg_src/sillyfiles/"File${SillyChar}Name"
-done
 
 
 #Generate random char of type
@@ -134,7 +124,7 @@ function CreateObjectName {
   fi
 
   NewName=""
-  for (( Itr=0 ; Itr < $Length ; Itr++ ))
+  for (( CharItr=0 ; CharItr < $Length ; CharItr++ ))
   do
     if [[ $IsFile == 1 ]]
     then
@@ -214,23 +204,36 @@ function CreateFile {
   else
     NewPath="$DestFolderName/$NewFileName"
   fi
+  FileList+=("$NewPath")
+  
+  #TODO CREATE FILE
+  #TODO Decide size
+  echo $NewPath
 }
+#for l in  "${FileList[@]}"; do echo $l; done
 
-#Test large files
-mkdir /tmp/kiocopy/folder_src/largefiles
-for i in {0..10}
+echo "Creating folder tree..."
+for (( FolderItr=0 ; FolderItr < $MAX_FOLDER_COUNT ; FolderItr++ ))
 do
-  dd if=/dev/zero ibs=4G count=1 of=/tmp/kiocopy/fsimg_src/largefiles/$i
+  CreateFolder
 done
 
 
-mkdir /tmp/kiocopy/logs
-kioclient copy /tmp/kiocopy/folder_src /tmp/kiocopy/folder_dest &> /tmp/kiocopy/logs/kioclient.log
-echo "$?" >> /tmp/kiocopy/report.log
-diff -rq /tmp/kiocopy/folder_src /tmp/kiocopy/folder_dest > /tmp/kiocopy/logs/folderdiff.txt
-tree /tmp/kiocopy/folder_src  > /tmp/kiocopy/logs/src_tree.txt
-tree /tmp/kiocopy/folder_dest > /tmp/kiocopy/logs/dest_tree.txt
+echo "Creating files..."
+for (( FileItr=0 ; FileItr < $MAX_FILE_COUNT ; FileItr++ ))
+do
+  CreateFile
+done
 
 
-umount /tmp/kiocopy/fsimg_src
-umount /tmp/kiocopy/fsimg_dest
+
+mkdir /tmp/kiocopy/$DateStamp/logs
+kioclient copy /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
+echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
+diff -rq /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
+tree /tmp/kiocopy/$DateStamp/folder_src  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
+tree /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+
+
+umount /tmp/kiocopy/$DateStamp/fsimg_src
+umount /tmp/kiocopy/$DateStamp/fsimg_dest
