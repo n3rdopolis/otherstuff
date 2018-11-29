@@ -57,12 +57,18 @@ done
 #5=Odd ascii/unicode points
 function CreateRandomChar {
   CharType=$1
-  LowercaseChars=(a b c d e f g h i j k l m n o p q r s t u v w x y z â ä à å ç ê ë è ï î ì æ)
-  UppercaseChars=(A B C D E F G H I J K L M N O P Q R S T U V W X W Z Ä Å Ä É Æ)
+  #LowercaseChars=(a b c d e f g h i j k l m n o p q r s t u v w x y z â ä à å ç ê ë è ï î ì æ)
+  #UppercaseChars=(A B C D E F G H I J K L M N O P Q R S T U V W X W Z Ä Å Ä É Æ)
+  #WhitespaceChars=(" ")
+  #NumberChars=(0 1 2 3 4 5 6 7 8 9)
+  #SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "." "," "-")
+  #OddChars=("©" "¾" "📋" "🐧" "䉎" "𖡒" "ԑ" "ĳ" "®" "╚")
+  LowercaseChars=(a b c)
+  UppercaseChars=(A B C)
   WhitespaceChars=(" ")
-  NumberChars=(0 1 2 3 4 5 6 7 8 9)
+  NumberChars=(1 2 3)
   SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "." "," "-")
-  OddChars=("©" "¾" "📋" "🐧" "䉎" "𖡒" "ԑ" "ĳ" "®" "╚")
+  OddChars=("©" "¾" "📋")
   if [[ $CharType == 0 ]]
   then
     MaxElement=${#LowercaseChars[@]}
@@ -108,10 +114,10 @@ function CreateObjectName {
   fi
 
   RandomSeed=$RANDOM
-  LengthHint=$(($RANDOM % 25))
+  LengthHint=$(($RANDOM % 10))
   if [[ $LengthHint -eq 0 ]]
   then
-    Length=128
+    Length=20
   else
     Length=$LengthHint
   fi
@@ -147,10 +153,27 @@ function CreateObjectName {
 }
 
 FolderList=()
-FolderList+=(/)
+FolderList+=("/")
 function CreateFolder {
+  FolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM % $FolderCount ))
+  DestFolderName=${FolderList[$DestFolderID]}
+  CreateObjectName 0 NewFolderName
+  LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
+  if [[ $LastDestFolderName == "/" ]]
+  then
+    NewPath="$DestFolderName$NewFolderName"
+  else
+    NewPath="$DestFolderName/$NewFolderName"
+  fi
+  FolderList+=("$NewPath")
   
+  #TODO CREATE FOLDER
+  echo $NewPath
 }
+#for l in  "${FolderList[@]}"; do echo $l; done
+
+
 
 #Test large files
 mkdir /tmp/kiocopy/folder_src/largefiles
