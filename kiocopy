@@ -190,7 +190,7 @@ function CreateFolder {
   #TODO CREATE FOLDER
   echo $NewPath
 }
-#for l in  "${FolderList[@]}"; do echo $l; done
+
 
 FileList=()
 function CreateFile {
@@ -210,7 +210,7 @@ function CreateFile {
   #TODO Decide size
   echo $NewPath
 }
-#for l in  "${FileList[@]}"; do echo $l; done
+
 
 echo "Creating folder tree..."
 for (( FolderItr=0 ; FolderItr < $MAX_FOLDER_COUNT ; FolderItr++ ))
@@ -225,9 +225,18 @@ do
   CreateFile
 done
 
-
-
 mkdir /tmp/kiocopy/$DateStamp/logs
+for Folder in  "${FolderList[@]}"
+do
+  echo $Folder >> /tmp/kiocopy/$DateStamp/logs/FolderList.txt
+done
+
+for File in  "${FileList[@]}"
+do
+  echo $File >> /tmp/kiocopy/$DateStamp/logs/FileList.txt
+done
+
+
 kioclient copy /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
 diff -rq /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
