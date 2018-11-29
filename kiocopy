@@ -3,6 +3,12 @@
 #Allow Exclamation points to be used in commands by turning off the history
 set +H
 
+FS_SIZE=50G
+MAX_FILE_LENGTH=10
+FILE_LENGTH_IF_ZERO=20
+MAX_FILES_WITH_NONLETTERS=1024
+MAX_FOLDERS_WITH_NONLETTERS=1024
+
 echo "Warning: This tries to create GB worth of files in /tmp."
 read a
 
@@ -10,8 +16,8 @@ mkdir /tmp/kiocopy
 mkdir /tmp/kiocopy/folder_src
 mkdir /tmp/kiocopy/folder_dest
 
-truncate --size 50G /tmp/kiocopy/fsimg_src
-truncate --size 50G /tmp/kiocopy/fsimg_dest
+truncate --size $FS_SIZE /tmp/kiocopy/fsimg_src
+truncate --size $FS_SIZE /tmp/kiocopy/fsimg_dest
 mkfs.ext4  /tmp/kiocopy/fsimg_src
 mkfs.btrfs /tmp/kiocopy/fsimg_dest
 
@@ -119,10 +125,10 @@ function CreateObjectName {
   fi
 
   RandomSeed=$RANDOM
-  LengthHint=$(($RANDOM % 10))
+  LengthHint=$(($RANDOM % $MAX_FILE_LENGTH))
   if [[ $LengthHint -eq 0 ]]
   then
-    Length=20
+    Length=$FILE_LENGTH_IF_ZERO
   else
     Length=$LengthHint
   fi
@@ -132,14 +138,14 @@ function CreateObjectName {
   do
     if [[ $IsFile == 1 ]]
     then
-      if [[ $OddCharFileCount < 512 ]]
+      if [[ $OddCharFileCount < $MAX_FILES_WITH_NONLETTERS ]]
       then
         NameCharType=$(($RANDOM % 5))
       else
         NameCharType=$(($RANDOM % 3))
       fi
     else
-      if [[ $OddCharFolderCount < 512 ]]
+      if [[ $OddCharFolderCount < $MAX_FOLDERS_WITH_NONLETTERS ]]
       then
         NameCharType=$(($RANDOM % 5))
       else
@@ -198,7 +204,16 @@ function CreateFolder {
 
 FileList=()
 function CreateFile {
-  
+  FolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM % $FolderCount ))
+  DestFolderName=${FolderList[$DestFolderID]}
+  CreateObjectName 1 NewFileName
+  if [[ $LastDestFolderName == "/" ]]
+  then
+    NewPath="$DestFolderName$NewFileName"
+  else
+    NewPath="$DestFolderName/$NewFileName"
+  fi
 }
 
 #Test large files
