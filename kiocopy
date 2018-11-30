@@ -5,7 +5,11 @@ set +H
 
 
 #Argument is a seed file
-SeedFile=$1
+#Seed File format. Two colunms. one is the size, one is the path
+#if the size is d, then the item is a directory, rows have unix newlines, columns are separated by $'\r'
+#For best handling in the array since spaces and tabs are used in test filenames
+#Except the first row is the datestamp
+SeedFile="$1"
 if [[ (! -z $SeedFile) && (! -e "$SeedFile") ]]
 then
   echo "$SeedFile does not exist"
@@ -34,8 +38,6 @@ MAX_FILE_COUNT=1000000
 FolderCount=0
 FileCount=0
 
-#Seed File format. Two colunms. one is the size, one is the path
-#if the size is d, then the item is a directory
 
 echo "Warning: This tries to create GB worth of files in /tmp."
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
@@ -211,7 +213,7 @@ function CreateSeededFolder {
   fi
   FolderList+=("$NewPath")
 
-  echo "d $NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
 
 
@@ -249,8 +251,11 @@ function CreateSeededFile {
     NewSize=1024
   fi
 
-  echo "$NewSize $NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  echo "$NewSize"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
+
+
+
 
 if [[ -z $SeedFile ]]
 then
@@ -270,7 +275,22 @@ then
   SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
 fi
 
-# TODO Handle SeedFile
+IFS=$'\n'
+SeedFileArray=($(cat "$SeedFile"))
+unset IFS
+
+#Skip first row, go through the array
+for SeededItem in ${SeedFileArray[@]:1}
+do
+  IFS=$'\r'
+  SeedItemArray=($SeededItem)
+  unset IFS
+
+  echo ${SeedItemArray[0]}
+  echo ${SeedItemArray[1]}
+  # TODO Handle SeedFile
+done
+
 
 
 
