@@ -10,7 +10,7 @@ MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
 
 MAX_FOLDER_COUNT=100000
-MAX_FILE_COUNT=10000000
+MAX_FILE_COUNT=1000000
 
 echo "Warning: This tries to create GB worth of files in /tmp."
 read a
@@ -53,8 +53,8 @@ export QT_LOGGING_RULES=kf5.kio.*=true
 #5=Odd ascii/unicode points
 function CreateRandomChar {
   CharType=$1
-  #LowercaseChars=(a b c d e f g h i j k l m n o p q r s t u v w x y z â ä à å ç ê ë è ï î ì æ)
-  #UppercaseChars=(A B C D E F G H I J K L M N O P Q R S T U V W X W Z Ä Å Ä É Æ)
+  #LowercaseChars=(a b c d e f g h i j k l m n o p q r s t u v w x y z)
+  #UppercaseChars=(A B C D E F G H I J K L M N O P Q R S T U V W X W Z)
   #WhitespaceChars=(" ")
   #NumberChars=(0 1 2 3 4 5 6 7 8 9)
   #SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "." "," "-")
@@ -64,7 +64,7 @@ function CreateRandomChar {
   NumberChars=(1 2 3)
   WhitespaceChars=(" ")
   SillyChars=("\\" "\"" ";" ":" "&" "#" "*" "@" "~" "{" "}" "(" ")" "'" "?" "<" ">" " " $'\t' "." "," "-")
-  OddChars=("©" "¾" "📋")
+  OddChars=("©" "¾" "📋" "🐧" "䉎" "𖡒" "ԑ" "ĳ" "®" "╚" "â" "ä" "à" "å" "ç" "ê" "ë" "è" "ï" "î" "ì" "æ" "Ä" "Å" "Ä" "É" "Æ")
   if [[ $CharType == 0 ]]
   then
     MaxElement=${#LowercaseChars[@]}
