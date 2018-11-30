@@ -140,12 +140,12 @@ function CreateObjectName {
         NameCharType=$(($RANDOM % 3))
       fi
     fi
-    echo $NameCharType
     CreateRandomChar $NameCharType NameChar
     NewName+=$NameChar
   done
   
-  if [[ $IsFile == 1 ]]
+  AddExt=$(( $RANDOM % 5 ))
+  if [[ $AddExt == 1 ]]
   then
     ((OddCharFileCount++))
     ExtChar1Type=$(($RANDOM % 3))
