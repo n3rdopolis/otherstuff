@@ -40,6 +40,7 @@ FileCount=0
 
 
 echo "Warning: This tries to create GB worth of files in /tmp."
+echo "This is meant to try to assist with possibly replicating https://bugs.kde.org/show_bug.cgi?id=162211"
 echo "Warning: This script when running without a seed file, generates many \$RANDOM numbers, which might use up entropy"
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
 read a
