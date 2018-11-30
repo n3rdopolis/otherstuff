@@ -14,9 +14,9 @@ MAX_FOLDER_COUNT=100000
 MAX_FILE_COUNT=1000000
 
 
-#Don't flood with too many unreadable symbols, will make reading logs hard for devs, max it out
-OddCharFolderCount=0
-OddCharFileCount=0
+#Count Number of files and folders made
+FolderCount=0
+FileCount=0
 
 
 echo "Warning: This tries to create GB worth of files in /tmp."
@@ -124,16 +124,17 @@ function CreateObjectName {
   NewName=""
   for (( CharItr=0 ; CharItr < $Length ; CharItr++ ))
   do
+    #Dont flood with too many unreadable symbols, will make reading logs hard for devs, max it out
     if [[ $IsFile == 1 ]]
     then
-      if [[ $OddCharFileCount -le $MAX_FILES_WITH_NONLETTERS ]]
+      if [[ $FileCount -le $MAX_FILES_WITH_NONLETTERS ]]
       then
         NameCharType=$(($RANDOM % 5))
       else
         NameCharType=$(($RANDOM % 3))
       fi
     else
-      if [[ $OddCharFolderCount -le $MAX_FOLDERS_WITH_NONLETTERS ]]
+      if [[ $FolderCount -le $MAX_FOLDERS_WITH_NONLETTERS ]]
       then
         NameCharType=$(($RANDOM % 5))
       else
@@ -147,7 +148,7 @@ function CreateObjectName {
   AddExt=$(( $RANDOM % 5 ))
   if [[ $AddExt == 1 ]]
   then
-    ((OddCharFileCount++))
+    ((FileCount++))
     ExtChar1Type=$(($RANDOM % 3))
     ExtChar2Type=$(($RANDOM % 3))
     ExtChar3Type=$(($RANDOM % 3))
@@ -159,7 +160,7 @@ function CreateObjectName {
     NewName+=$ExtChar2
     NewName+=$ExtChar3
   else
-    ((OddCharFolderCount++))
+    ((FolderCount++))
   fi
 
   if [[ ! -z $2 ]]
@@ -209,9 +210,28 @@ function CreateFile {
   fi
   FileList+=("$NewPath")
   
+
+  #Determine what the size of the file should be
+  if [[ $FileCount -le 3 ]]
+  then
+    NewSize=1073741824
+  elif [[ ($FileCount -gt 3) && ($FileCount -le 13) ]]
+  then
+    NewSize=104857600
+  elif [[ ($FileCount -gt 13) && ($FileCount -le 10013) ]]
+  then
+    NewSize=0
+  elif [[ ($FileCount -gt 10013) && ($FileCount -le 10113) ]]
+  then
+    NewSize=1048576
+  else
+    NewSize=1024
+  fi
+
   #TODO CREATE FILE
-  #TODO Decide size
-  echo $NewPath
+  echo "$NewSize $NewPath"
+
+  #ToDo, Create seed file to replicate the structure
 }
 
 #Create the Folder Tree
@@ -229,17 +249,17 @@ do
 done
 
 #log folders
-mkdir /tmp/kiocopy/$DateStamp/logs
-for Folder in  "${FolderList[@]}"
-do
-  echo $Folder >> /tmp/kiocopy/$DateStamp/logs/FolderList.txt
-done
+#mkdir /tmp/kiocopy/$DateStamp/logs
+#for Folder in  "${FolderList[@]}"
+#do
+#  echo $Folder >> /tmp/kiocopy/$DateStamp/logs/FolderList.txt
+#done
 
 #Log files
-for File in  "${FileList[@]}"
-do
-  echo $File >> /tmp/kiocopy/$DateStamp/logs/FileList.txt
-done
+#for File in  "${FileList[@]}"
+#do
+#  echo $File >> /tmp/kiocopy/$DateStamp/logs/FileList.txt
+#done
 
 
 
