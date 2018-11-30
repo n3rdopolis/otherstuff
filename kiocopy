@@ -296,9 +296,11 @@ do
   if [[ $ItemSize == d ]]
   then
     mkdir -p "$ItemPath"
+  elif [[ $ItemSize == 0 ]]
+  then
+    touch "$ItemPath"
   else
-    : # TODO decide how to create file size, should it be all zeros, random data, or off a downloaded seed file to just dd the number of bytes from...
-    # Probably not random data, too much entropy needed, and file contents won't be replicatable
+    dd if=/dev/zero bs=1 count=$ItemSize > "$ItemPath" 2> /dev/null
   fi
 done
 
