@@ -46,7 +46,10 @@ read a
 
 mkdir /tmp/kiocopy
 mkdir /tmp/kiocopy/$DateStamp
-echo $DateStamp > /tmp/kiocopy/$DateStamp/Seed.txt
+if [[ -z $SeedFile ]]
+then
+  echo $DateStamp > /tmp/kiocopy/$DateStamp/Seed.txt
+fi
 
 mkdir /tmp/kiocopy/$DateStamp/folder_src
 mkdir /tmp/kiocopy/$DateStamp/folder_dest
