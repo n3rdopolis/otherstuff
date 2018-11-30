@@ -3,7 +3,23 @@
 #Allow Exclamation points to be used in commands by turning off the history
 set +H
 
-DateStamp=$(date +%s)
+
+#Argument is a seed file
+SeedFile=$1
+if [[ (! -z $SeedFile) && (! -e "$SeedFile") ]]
+then
+  echo "$SeedFile does not exist"
+  exit
+fi
+
+if [[ -z $SeedFile ]]
+then
+  DateStamp=$(date +%s)
+else
+  DateStamp=$(head -1 $SeedFile)
+fi
+
+
 FS_SIZE=50G
 MAX_FILE_LENGTH=10
 FILE_LENGTH_IF_ZERO=20
@@ -18,6 +34,8 @@ MAX_FILE_COUNT=1000000
 FolderCount=0
 FileCount=0
 
+#Seed File format. Two colunms. one is the size, one is the path
+#if the size is d, then the item is a directory
 
 echo "Warning: This tries to create GB worth of files in /tmp."
 read a
@@ -25,6 +43,8 @@ read a
 
 mkdir /tmp/kiocopy
 mkdir /tmp/kiocopy/$DateStamp
+echo $DateStamp > /tmp/kiocopy/$DateStamp/Seed.txt
+
 mkdir /tmp/kiocopy/$DateStamp/folder_src
 mkdir /tmp/kiocopy/$DateStamp/folder_dest
 
@@ -176,7 +196,7 @@ function CreateObjectName {
 #since the full path is in the array, and the name gets added.
 FolderList=()
 FolderList+=("/tmp/kiocopy/$DateStamp/folder_src/")
-function CreateFolder {
+function CreateSeededFolder {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
@@ -189,15 +209,15 @@ function CreateFolder {
     NewPath="$DestFolderName/$NewFolderName"
   fi
   FolderList+=("$NewPath")
-  
-  mkdir -p "$NewPath"
+
+  echo "d $NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
 
 
 #This creates files, it randomly selects the index of a folder, grabs the name, creates a random file name
 #and creates the file, saving the full path to an array
 FileList=()
-function CreateFile {
+function CreateSeededFile {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
@@ -228,38 +248,29 @@ function CreateFile {
     NewSize=1024
   fi
 
-  #TODO CREATE FILE
-  echo "$NewSize $NewPath"
-
-  #ToDo, Create seed file to replicate the structure
+  echo "$NewSize $NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
 
-#Create the Folder Tree
-echo "Creating folder tree..."
-for (( FolderItr=0 ; FolderItr < $MAX_FOLDER_COUNT ; FolderItr++ ))
-do
-  CreateFolder
-done
+if [[ -z $SeedFile ]]
+then
+  #Create the Folder Tree
+  echo "Creating folder tree..."
+  for (( FolderItr=0 ; FolderItr < $MAX_FOLDER_COUNT ; FolderItr++ ))
+  do
+    CreateSeededFolder
+  done
 
-#Create the files
-echo "Creating files..."
-for (( FileItr=0 ; FileItr < $MAX_FILE_COUNT ; FileItr++ ))
-do
-  CreateFile
-done
+  #Create the files
+  echo "Creating files..."
+  for (( FileItr=0 ; FileItr < $MAX_FILE_COUNT ; FileItr++ ))
+  do
+    CreateSeededFile
+  done
+  SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
+fi
 
-#log folders
-#mkdir /tmp/kiocopy/$DateStamp/logs
-#for Folder in  "${FolderList[@]}"
-#do
-#  echo $Folder >> /tmp/kiocopy/$DateStamp/logs/FolderList.txt
-#done
+# TODO Handle SeedFile
 
-#Log files
-#for File in  "${FileList[@]}"
-#do
-#  echo $File >> /tmp/kiocopy/$DateStamp/logs/FileList.txt
-#done
 
 
 
