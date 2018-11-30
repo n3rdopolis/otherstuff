@@ -38,6 +38,7 @@ FileCount=0
 #if the size is d, then the item is a directory
 
 echo "Warning: This tries to create GB worth of files in /tmp."
+echo "You can specify a seed file as an argument to build a previously created copy source tree"
 read a
 
 
