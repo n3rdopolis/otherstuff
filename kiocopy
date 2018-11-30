@@ -40,6 +40,7 @@ FileCount=0
 
 
 echo "Warning: This tries to create GB worth of files in /tmp."
+echo "Warning: This script when running without a seed file, generates many \$RANDOM numbers, which might use up entropy"
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
 read a
 
@@ -289,9 +290,15 @@ do
   SeedItemArray=($SeededItem)
   unset IFS
 
-  echo ${SeedItemArray[0]}
-  echo ${SeedItemArray[1]}
-  # TODO Handle SeedFile
+  ItemSize=${SeedItemArray[0]}
+  ItemPath=${SeedItemArray[1]}
+  if [[ $ItemSize == d ]]
+  then
+    mkdir -p "$ItemPath"
+  else
+    : # TODO decide how to create file size, should it be all zeros, random data, or off a downloaded seed file to just dd the number of bytes from...
+    # Probably not random data, too much entropy needed, and file contents won't be replicatable
+  fi
 done
 
 
