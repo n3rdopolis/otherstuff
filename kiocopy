@@ -61,6 +61,29 @@ mkdir /tmp/kiocopy/$DateStamp/folder_src
 mkdir /tmp/kiocopy/$DateStamp/folder_dest
 mkdir /tmp/kiocopy/$DateStamp/logs
 
+#Unmount old paths, if mounted
+mountpoint /tmp/kiocopy/$DateStamp/folder_src
+if [[ $? == 0 ]]
+then
+  sudo umount /tmp/kiocopy/$DateStamp/folder_src
+fi
+mountpoint /tmp/kiocopy/$DateStamp/folder_dest
+if [[ $? == 0 ]]
+then
+  sudo umount /tmp/kiocopy/$DateStamp/folder_dest
+fi
+
+#Remove old test fses if they exist
+if [[ -e /tmp/kiocopy/$DateStamp/fsimg_src ]]
+then
+  rm /tmp/kiocopy/$DateStamp/fsimg_src
+fi
+if [[ -e /tmp/kiocopy/$DateStamp/fsimg_dest ]]
+then
+  rm /tmp/kiocopy/$DateStamp/fsimg_dest
+fi
+
+
 truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
 truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_dest
 mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
