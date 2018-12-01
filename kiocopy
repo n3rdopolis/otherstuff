@@ -345,11 +345,10 @@ do
     then
       echo "Would have created $ItemSize byte file $ItemPath"
     else
-      dd if=/dev/zero bs=1 count=$ItemSize > "$ItemPath" 2> /dev/null
+      fallocate -l $ItemSize "$ItemPath"
     fi
   fi
 done
-
 
 
 
