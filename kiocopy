@@ -413,6 +413,8 @@ tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/lo
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_dest
 
+rm /tmp/kiocopy/$DateStamp/fsimg_src
+rm /tmp/kiocopy/$DateStamp/fsimg_dest
 
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
