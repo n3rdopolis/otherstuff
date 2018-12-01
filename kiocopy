@@ -106,7 +106,7 @@ sudo chown $UID /tmp/kiocopy/$DateStamp/folder_src
 sudo chown $UID /tmp/kiocopy/$DateStamp/folder_dest
 
 mkdir /tmp/kiocopy/$DateStamp/folder_src/testdir
-mkdir /tmp/kiocopy/$DateStamp/folder_dest
+
 
 
 
@@ -367,7 +367,7 @@ tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/lo
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_dest
 
-kompare /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt &> /dev/null &
+
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
 Tree of the source: /tmp/kiocopy/$DateStamp/logs/src_tree.txt
@@ -378,3 +378,4 @@ Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 
 echo "Will now start kompare. Press enter."
 echo read a
+kompare /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt &> /dev/null &
