@@ -43,6 +43,7 @@ echo "Warning: This tries to create GB worth of files in /tmp."
 echo "This is meant to try to assist with possibly replicating https://bugs.kde.org/show_bug.cgi?id=162211"
 echo "Warning: This script when running without a seed file, generates many \$RANDOM numbers, which might use up entropy"
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
+echo "It requires root access to mount and unmount the test loopback file systems it creates"
 read a
 
 echo "Workdir is /tmp/kiocopy/$DateStamp/"
@@ -232,6 +233,7 @@ function CreateSeededFile {
   DestFolderID=$(( $RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
   CreateObjectName 1 NewFileName
+  LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
     NewPath="$DestFolderName$NewFileName"
@@ -337,8 +339,8 @@ tree /tmp/kiocopy/$DateStamp/folder_src  > /tmp/kiocopy/$DateStamp/logs/src_tree
 tree /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
 
-umount /tmp/kiocopy/$DateStamp/fsimg_src
-umount /tmp/kiocopy/$DateStamp/fsimg_dest
+sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
+sudo umount /tmp/kiocopy/$DateStamp/fsimg_dest
 
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
