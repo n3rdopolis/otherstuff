@@ -235,7 +235,12 @@ function CreateSeededFolder {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
-  CreateObjectName 0 NewFolderName
+  if [[ ($FolderCount -gt 1000) && ($FolderCount -le 2000) ]]
+  then
+    NewFolderName=SameFolderName
+  else
+    CreateObjectName 0 NewFolderName
+  fi
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
@@ -257,7 +262,12 @@ function CreateSeededFile {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
-  CreateObjectName 1 NewFileName
+  if [[ ($FileCount -gt 1000) && ($FileCount -le 2000) ]]
+  then
+    NewFileName=SameFileName
+  else
+    CreateObjectName 1 NewFileName
+  fi
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
