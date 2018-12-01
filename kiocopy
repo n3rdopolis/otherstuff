@@ -61,6 +61,7 @@ fi
 mkdir /tmp/kiocopy/$DateStamp/folder_src
 mkdir /tmp/kiocopy/$DateStamp/folder_dest
 mkdir /tmp/kiocopy/$DateStamp/logs
+rm /tmp/kiocopy/$DateStamp/logs/self.log
 
 #Unmount old paths, if mounted
 mountpoint /tmp/kiocopy/$DateStamp/folder_src
@@ -367,7 +368,7 @@ do
       fi
     fi
   fi
-done < <(tail -n +1 "$SeedFile")
+done < <(tail -n +2 "$SeedFile")
 
 
 
