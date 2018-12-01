@@ -235,7 +235,7 @@ FolderList=()
 FolderList+=("/tmp/kiocopy/$DateStamp/folder_src/testdir/")
 function CreateSeededFolder {
   FolderCount=${#FolderList[@]}
-  DestFolderID=$(( $RANDOM % $FolderCount ))
+  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
   if [[ ($FolderCount -gt 1000) && ($FolderCount -le 2000) ]]
   then
@@ -254,6 +254,7 @@ function CreateSeededFolder {
   ((FolderCount++))
 
   echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  #echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
@@ -262,7 +263,7 @@ function CreateSeededFolder {
 FileList=()
 function CreateSeededFile {
   FolderCount=${#FolderList[@]}
-  DestFolderID=$(( $RANDOM % $FolderCount ))
+  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
   if [[ ($FileCount -gt 1000) && ($FileCount -le 2000) ]]
   then
@@ -299,6 +300,7 @@ function CreateSeededFile {
   ((FileCount++))
 
   echo "$NewSize"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  #echo "create $NewSize byte file in index $DestFolderID path $DestFolderName name $NewFileName (with $FolderCount folders, $FileCount files.)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
