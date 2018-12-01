@@ -110,7 +110,7 @@ sudo chown $UID /tmp/kiocopy/$DateStamp/folder_dest
 mkdir /tmp/kiocopy/$DateStamp/folder_src/testdir
 
 
-
+RANDOM=$(dd if=/dev/urandom count=65536)
 
 #Generate random char of type
 #0=lowercase
@@ -172,7 +172,6 @@ function CreateObjectName {
     IsFile=0
   fi
 
-  RANDOM=$((($SECONDS+$RANDOM)*$RANDOM))
   LengthHint=$(($RANDOM % $MAX_FILE_LENGTH))
   if [[ $LengthHint -eq 0 ]]
   then
