@@ -254,11 +254,11 @@ function CreateSeededFolder {
   fi
   for SeededFolder in "${FolderList[@]}"
   do
-    if [[ $SeededFolder == $NewPath ]]
+    if [[ "$SeededFolder" == "$NewPath" ]]
     then
       IsPathDuplicated=1
-      NewPath=$NewPath$FolderCount
-      NewFolderName=$NewFolderName$FolderCount
+      NewPath="$NewPath$FolderCount"
+      NewFolderName="$NewFolderName$FolderCount"
       break
     fi
   done
@@ -266,7 +266,7 @@ function CreateSeededFolder {
   ((FolderCount++))
 
   echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  #echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders) Duplicate Prevent: $IsPathDuplicated" >> /tmp/kiocopy/$DateStamp/dbglog.txt
+  echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders) Duplicate Prevent: $IsPathDuplicated" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
@@ -294,11 +294,11 @@ function CreateSeededFile {
   fi
   for SeededFile in "${FileList[@]}"
   do
-    if [[ $SeededFile == $NewPath ]]
+    if [[ "$SeededFile" == "$NewPath" ]]
     then
       IsPathDuplicated=1
-      NewPath=$NewPath$FileCount
-      NewFileName=$NewFileName$FileCount
+      NewPath="$NewPath$FileCount"
+      NewFileName="$NewFileName$FileCount"
       break
     fi
   done
