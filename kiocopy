@@ -243,6 +243,8 @@ function CreateSeededFolder {
   else
     CreateObjectName 0 NewFolderName
   fi
+  IsPathDuplicated=0
+
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
@@ -250,11 +252,21 @@ function CreateSeededFolder {
   else
     NewPath="$DestFolderName/$NewFolderName"
   fi
+  for SeededFolder in "${FolderList[@]}"
+  do
+    if [[ $SeededFolder == $NewPath ]]
+    then
+      IsPathDuplicated=1
+      NewPath=$NewPath$FolderCount
+      NewFolderName=$NewFolderName$FolderCount
+      break
+    fi
+  done
   FolderList+=("$NewPath")
   ((FolderCount++))
 
   echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  #echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
+  #echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders) Duplicate Prevent: $IsPathDuplicated" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
@@ -271,6 +283,8 @@ function CreateSeededFile {
   else
     CreateObjectName 1 NewFileName
   fi
+  IsPathDuplicated=0
+
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
@@ -278,6 +292,16 @@ function CreateSeededFile {
   else
     NewPath="$DestFolderName/$NewFileName"
   fi
+  for SeededFile in "${FileList[@]}"
+  do
+    if [[ $SeededFile == $NewPath ]]
+    then
+      IsPathDuplicated=1
+      NewPath=$NewPath$FileCount
+      NewFileName=$NewFileName$FileCount
+      break
+    fi
+  done
   FileList+=("$NewPath")
   
 
@@ -300,7 +324,7 @@ function CreateSeededFile {
   ((FileCount++))
 
   echo "$NewSize"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  #echo "create $NewSize byte file in index $DestFolderID path $DestFolderName name $NewFileName (with $FolderCount folders, $FileCount files.)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
+  #echo "create $NewSize byte file in index $DestFolderID path $DestFolderName name $NewFileName (with $FolderCount folders, $FileCount files.) Duplicate Prevent: $IsPathDuplicated" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
