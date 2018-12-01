@@ -44,6 +44,8 @@ echo "This is meant to try to assist with possibly replicating https://bugs.kde.
 echo "Warning: This script when running without a seed file, generates many \$RANDOM numbers, which might use up entropy"
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
 echo "It requires root access to mount and unmount the test loopback file systems it creates"
+echo ""
+echo "Press Enter..."
 read a
 
 echo "Workdir is /tmp/kiocopy/$DateStamp/"
@@ -80,6 +82,8 @@ fi
 sudo chown $UID /tmp/kiocopy/$DateStamp/folder_src
 sudo chown $UID /tmp/kiocopy/$DateStamp/folder_dest
 
+mkdir /tmp/kiocopy/$DateStamp/folder_src/testdir
+mkdir /tmp/kiocopy/$DateStamp/folder_dest/testdir
 
 
 
@@ -206,7 +210,7 @@ function CreateObjectName {
 #and creates the folder name, saving the full path to the array. this array of folders is used to create more folders
 #since the full path is in the array, and the name gets added.
 FolderList=()
-FolderList+=("/tmp/kiocopy/$DateStamp/folder_src/")
+FolderList+=("/tmp/kiocopy/$DateStamp/folder_src/testdir/")
 function CreateSeededFolder {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM % $FolderCount ))
@@ -290,7 +294,7 @@ unset IFS
 
 #Skip first row, go through the array
 echo "Creating objects in filesystem..."
-for SeededItem in ${SeedFileArray[@]:1}
+for SeededItem in "${SeedFileArray[@]:1}"
 do
   IFS=$'\r'
   SeedItemArray=($SeededItem)
@@ -332,11 +336,11 @@ done
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
 export QT_LOGGING_RULES=kf5.kio.*=true
-kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
+kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
-diff -rq /tmp/kiocopy/$DateStamp/folder_src /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
-tree /tmp/kiocopy/$DateStamp/folder_src  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
-tree /tmp/kiocopy/$DateStamp/folder_dest > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+diff -rq /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
+tree /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
+tree /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
 
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
@@ -347,4 +351,5 @@ Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
 Diff of the source and target tree: /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
 Tree of the source: /tmp/kiocopy/$DateStamp/logs/src_tree.txt
 Tree of the target: /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 "
