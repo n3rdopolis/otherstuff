@@ -321,13 +321,9 @@ then
   SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
 fi
 
-IFS=$'\n'
-SeedFileArray=($(cat "$SeedFile"))
-unset IFS
 
-#Skip first row, go through the array
 echo "Creating objects in filesystem..."
-for SeededItem in "${SeedFileArray[@]:1}"
+while read SeededItem
 do
   IFS=$'\r'
   SeedItemArray=($SeededItem)
@@ -371,7 +367,7 @@ do
       fi
     fi
   fi
-done
+done < <(tail -n +1 "$SeedFile")
 
 
 
