@@ -183,7 +183,6 @@ function CreateObjectName {
   AddExt=$(( $RANDOM % 5 ))
   if [[ $AddExt == 1 ]]
   then
-    ((FileCount++))
     ExtChar1Type=$(($RANDOM % 3))
     ExtChar2Type=$(($RANDOM % 3))
     ExtChar3Type=$(($RANDOM % 3))
@@ -194,8 +193,6 @@ function CreateObjectName {
     NewName+=$ExtChar1
     NewName+=$ExtChar2
     NewName+=$ExtChar3
-  else
-    ((FolderCount++))
   fi
 
   if [[ ! -z $2 ]]
@@ -224,6 +221,7 @@ function CreateSeededFolder {
     NewPath="$DestFolderName/$NewFolderName"
   fi
   FolderList+=("$NewPath")
+  ((FolderCount++))
 
   echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
@@ -263,6 +261,7 @@ function CreateSeededFile {
   else
     NewSize=1024
   fi
+  ((FileCount++))
 
   echo "$NewSize"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
