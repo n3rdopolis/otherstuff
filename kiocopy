@@ -361,7 +361,6 @@ unset IFS
 
 
 echo "Creating objects in filesystem..."
-LastItemSize=d
 for (( SeedItr=1 ; SeedItr < "${#SeedFileArray[@]}" ; SeedItr++ ))
 do
   SeededItem="${SeedFileArray[$SeedItr]}"
@@ -371,11 +370,6 @@ do
 
   ItemSize=${SeedItemArray[0]}
   ItemPath=${SeedItemArray[1]}
-
-  if [[ ($ItemSize != d) && ($LastItemSize == d) ]]
-  then
-    sleep 10
-  fi
 
   if [[ $ItemSize == d ]]
   then
@@ -413,7 +407,6 @@ do
       fi
     fi
   fi
-  LastItemSize=$ItemSize
 done
 sleep 30
 
