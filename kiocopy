@@ -415,4 +415,4 @@ tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs
 
 echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff. Press enter."
 echo read a
-diff /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt | more
+diff -u /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt | more
