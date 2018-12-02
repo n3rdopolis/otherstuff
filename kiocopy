@@ -39,6 +39,10 @@ ItemCount=0
 FolderCount=0
 FileCount=0
 
+if [[ -e /usr/lib/bash/mkdir ]]
+then
+  enable -f /usr/lib/bash/mkdir mkdir
+fi
 
 echo "Warning: This tries to create GB worth of files in /tmp."
 echo "This is meant to try to assist with possibly replicating https://bugs.kde.org/show_bug.cgi?id=162211"
@@ -46,6 +50,8 @@ echo "Warning: This script when running without a seed file, generates many \$RA
 echo "You can specify a seed file as an argument to build a previously created copy source tree"
 echo "It requires sudo access to mount and unmount the test loopback file systems it creates"
 echo "This script runs kioclient as a user, but will prompt for sudo access to do things like mount and unmount the loopback filesystems."
+echo ""
+echo "This script runs faster with the bash-builtins package"
 echo ""
 echo "Press Enter..."
 read a
@@ -377,7 +383,7 @@ do
     then
       echo "Would have created folder $ItemPath"
     else
-      mkdir -p "$ItemPath" &
+      mkdir -p "$ItemPath"
       if [[ $? != 0 ]]
       then
         echo "Failed to create folder $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
@@ -389,7 +395,7 @@ do
     then
       echo "Would have created empty file $ItemPath"
     else
-      touch "$ItemPath" &
+      echo -n > "$ItemPath"
       if [[ $? != 0 ]]
       then
         echo "Failed to empty file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
