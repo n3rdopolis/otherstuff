@@ -322,11 +322,18 @@ then
   SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
 fi
 
+echo "Reading Seed File..."
+IFS=$'\n'
+SeedFileArray=($(cat "$SeedFile"))
+unset IFS
+
+
 
 echo "Creating objects in filesystem..."
 LastItemSize=d
-while read SeededItem
+for (( SeedItr=1 ; SeedItr < "${#SeedFileArray[@]}" ; SeedItr++ ))
 do
+  SeededItem="${SeedFileArray[$SeedItr]}"
   IFS=$'\r'
   SeedItemArray=($SeededItem)
   unset IFS
@@ -376,11 +383,8 @@ do
     fi
   fi
   LastItemSize=$ItemSize
-done < <(tail -n +2 "$SeedFile")
+done
 sleep 30
-
-
-
 
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
