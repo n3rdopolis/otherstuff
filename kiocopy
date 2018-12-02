@@ -23,7 +23,6 @@ else
   DateStamp=$(head -1 $SeedFile)
 fi
 
-
 FS_SIZE=50G
 MAX_FILE_LENGTH=10
 FILE_LENGTH_IF_ZERO=20
@@ -65,12 +64,12 @@ mkdir /tmp/kiocopy/$DateStamp/logs
 rm /tmp/kiocopy/$DateStamp/logs/self.log
 
 #Unmount old paths, if mounted
-mountpoint /tmp/kiocopy/$DateStamp/folder_src
+mountpoint -q /tmp/kiocopy/$DateStamp/folder_src
 if [[ $? == 0 ]]
 then
   sudo umount /tmp/kiocopy/$DateStamp/folder_src
 fi
-mountpoint /tmp/kiocopy/$DateStamp/folder_dest
+mountpoint -q /tmp/kiocopy/$DateStamp/folder_dest
 if [[ $? == 0 ]]
 then
   sudo umount /tmp/kiocopy/$DateStamp/folder_dest
@@ -325,6 +324,7 @@ fi
 
 
 echo "Creating objects in filesystem..."
+LastItemSize=d
 while read SeededItem
 do
   IFS=$'\r'
@@ -333,13 +333,19 @@ do
 
   ItemSize=${SeedItemArray[0]}
   ItemPath=${SeedItemArray[1]}
+
+  if [[ ($ItemSize != d) && ($LastItemSize == d) ]]
+  then
+    sleep 5
+  fi
+
   if [[ $ItemSize == d ]]
   then
     if [[ $DoDryRun == 1 ]]
     then
       echo "Would have created folder $ItemPath"
     else
-      mkdir -p "$ItemPath"
+      mkdir -p "$ItemPath" &
       if [[ $? != 0 ]]
       then
         echo "Failed to create folder $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
@@ -351,7 +357,7 @@ do
     then
       echo "Would have created empty file $ItemPath"
     else
-      touch "$ItemPath"
+      touch "$ItemPath" &
       if [[ $? != 0 ]]
       then
         echo "Failed to empty file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
@@ -362,13 +368,14 @@ do
     then
       echo "Would have created $ItemSize byte file $ItemPath"
     else
-      fallocate -l $ItemSize "$ItemPath"
+      fallocate -l $ItemSize "$ItemPath" &
       if [[ $? != 0 ]]
       then
         echo "Failed to $ItemSize byte file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
       fi
     fi
   fi
+  LastItemSize=$ItemSize
 done < <(tail -n +2 "$SeedFile")
 
 
