@@ -336,7 +336,7 @@ do
 
   if [[ ($ItemSize != d) && ($LastItemSize == d) ]]
   then
-    sleep 5
+    sleep 10
   fi
 
   if [[ $ItemSize == d ]]
@@ -377,7 +377,7 @@ do
   fi
   LastItemSize=$ItemSize
 done < <(tail -n +2 "$SeedFile")
-
+sleep 30
 
 
 
