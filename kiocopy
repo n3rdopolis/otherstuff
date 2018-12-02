@@ -28,6 +28,7 @@ MAX_FILE_LENGTH=10
 FILE_LENGTH_IF_ZERO=20
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
+LARGE_SUBIR_FILE_COUNT=20000
 
 MAX_FOLDER_COUNT=100000
 MAX_FILE_COUNT=1000000
@@ -252,13 +253,11 @@ function CreateSeededFolder {
   ((FolderCount++))
 
   echo "d"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  #echo "create dir in index $DestFolderID path $DestFolderName name $NewFolderName (with $FolderCount folders)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
 
 #This creates files, it randomly selects the index of a folder, grabs the name, creates a random file name
 #and creates the file, saving the full path to an array
-FileList=()
 function CreateSeededFile {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
@@ -274,9 +273,6 @@ function CreateSeededFile {
   else
     NewPath="$DestFolderName/$NewFileName"
   fi
-
-  FileList+=("$NewPath")
-  
 
   #Determine what the size of the file should be
   if [[ $FileCount -le 3 ]]
@@ -298,10 +294,33 @@ function CreateSeededFile {
   ((FileCount++))
 
   echo "$NewSize"$'\r'"$NewPath" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  #echo "create $NewSize byte file in index $DestFolderID path $DestFolderName name $NewFileName (with $FolderCount folders, $FileCount files.)" >> /tmp/kiocopy/$DateStamp/dbglog.txt
 }
 
+#Fill one folder with lots of files
+function CreateSeededFiles {
+  FolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  DestFolderName=${FolderList[$DestFolderID]}
 
+  CreateObjectName 1 NewFileName
+  NewFileName=$ItemCount$NewFileName
+
+  LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
+  if [[ $LastDestFolderName == "/" ]]
+  then
+    NewPath="$DestFolderName$NewFileName"
+  else
+    NewPath="$DestFolderName/$NewFileName"
+  fi
+
+  NewSize=1024
+  ((ItemCount++))
+
+  for (( FileItr=0 ; FileItr < $LARGE_SUBIR_FILE_COUNT ; FileItr++ ))
+  do
+    echo "$NewSize"$'\r'"$NewPath$FileItr" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  done
+}
 
 
 if [[ -z $SeedFile ]]
@@ -319,6 +338,12 @@ then
   do
     CreateSeededFile
   done
+
+  #Create a large amount of files in random folders
+  CreateSeededFiles
+  CreateSeededFiles
+  CreateSeededFiles
+
   SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
 fi
 
