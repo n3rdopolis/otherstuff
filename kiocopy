@@ -28,8 +28,9 @@ MAX_FILE_LENGTH=10
 FILE_LENGTH_IF_ZERO=20
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
-LARGE_SUBIR_FILE_COUNT=100000
 
+LARGE_SUBIR_FILE_COUNT=100000
+MAX_FILES_COUNT=3
 MAX_FOLDER_COUNT=100000
 MAX_FILE_COUNT=1000000
 
@@ -322,9 +323,9 @@ function CreateSeededFiles {
   NewSize=1024
   ((ItemCount++))
 
-  for (( FileItr=0 ; FileItr < $LARGE_SUBIR_FILE_COUNT ; FileItr++ ))
+  for (( LargeFileItr=0 ; LargeFileItr < $LARGE_SUBIR_FILE_COUNT ; LargeFileItr++ ))
   do
-    echo "$NewSize"$'\r'"$NewPath$FileItr" >> /tmp/kiocopy/$DateStamp/Seed.txt
+    echo "$NewSize"$'\r'"$NewPath$LargeFileItr" >> /tmp/kiocopy/$DateStamp/Seed.txt
   done
 }
 
@@ -346,9 +347,11 @@ then
   done
 
   #Create a large amount of files in random folders
-  CreateSeededFiles
-  CreateSeededFiles
-  CreateSeededFiles
+  echo "Creating multiple file seeds..."
+  for (( FilesItr=0 ; FilesItr < $MAX_FILES_COUNT ; FilesItr++ ))
+  do
+    CreateSeededFiles
+  done
 
   SeedFile=/tmp/kiocopy/$DateStamp/Seed.txt
 fi
@@ -421,7 +424,7 @@ do
     fi
   fi
 done
-sleep 30
+
 
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
