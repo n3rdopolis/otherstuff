@@ -405,7 +405,7 @@ rm /tmp/kiocopy/$DateStamp/fsimg_dest
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
 Tree of the source: /tmp/kiocopy/$DateStamp/logs/src_tree.txt
-Tree of the target:
+Tree of the target: /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 
 "
@@ -413,6 +413,6 @@ Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile.tar.xz"
 tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/Seed.txt
 
-echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start kompare. Press enter."
+echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff. Press enter."
 echo read a
-kompare /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt &> /dev/null &
+diff /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt | more
