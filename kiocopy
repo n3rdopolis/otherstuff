@@ -358,7 +358,8 @@ IFS=$'\n'
 SeedFileArray=($(cat "$SeedFile"))
 unset IFS
 
-
+#Create a 1024 byte variable
+BYTE1024=$(for v in {1..1024};do echo -n 0 ; done)
 
 echo "Creating objects in filesystem..."
 for (( SeedItr=1 ; SeedItr < "${#SeedFileArray[@]}" ; SeedItr++ ))
@@ -387,12 +388,24 @@ do
   then
     if [[ $DoDryRun == 1 ]]
     then
-      echo "Would have created empty file $ItemPath"
+      echo "Would have fast created empty file $ItemPath"
     else
       echo -n > "$ItemPath"
       if [[ $? != 0 ]]
       then
-        echo "Failed to empty file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
+        echo "Failed to fast create empty file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
+      fi
+    fi
+  elif [[ $ItemSize == 1024 ]]
+  then
+    if [[ $DoDryRun == 1 ]]
+    then
+      echo "Would have fast created 1024 byte file $ItemPath"
+    else
+      echo -n $BYTE1024 > "$ItemPath"
+      if [[ $? != 0 ]]
+      then
+        echo "Failed to fast created 1024 byte file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
       fi
     fi
   else
@@ -400,7 +413,7 @@ do
     then
       echo "Would have created $ItemSize byte file $ItemPath"
     else
-      fallocate -l $ItemSize "$ItemPath" &
+      fallocate -l $ItemSize "$ItemPath"
       if [[ $? != 0 ]]
       then
         echo "Failed to $ItemSize byte file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
