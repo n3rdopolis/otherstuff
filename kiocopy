@@ -425,9 +425,9 @@ do
   fi
 done
 
-
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
+export KDE_FORK_SLAVES=1
 export QT_LOGGING_RULES=kf5.kio.*=true
 kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
