@@ -436,15 +436,12 @@ export QT_LOGGING_RULES=kf5.kio.*=true
 kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
 #diff -rq /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
-tree -as /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
-tree -as /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+tree -a /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
+tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
+tree -as /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt
+tree -as /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt
 
-sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
-sudo umount /tmp/kiocopy/$DateStamp/fsimg_dest
-
-#rm /tmp/kiocopy/$DateStamp/fsimg_src
-rm /tmp/kiocopy/$DateStamp/fsimg_dest
 
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
@@ -457,6 +454,22 @@ Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile.tar.xz"
 tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/Seed.txt
 
-echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff. Press enter."
-echo read a
+echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff for the overall tree. Press enter."
+read a
 diff -u /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt | more
+
+echo "press enter"
+read a
+
+echo "Will now start diff for the size tree. Press enter."
+read a
+diff -u /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt | more
+
+
+echo "Press enter to remove test file systems. Press CTRL+C to not."
+read a
+sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
+sudo umount /tmp/kiocopy/$DateStamp/fsimg_dest
+
+rm /tmp/kiocopy/$DateStamp/fsimg_src
+rm /tmp/kiocopy/$DateStamp/fsimg_dest
