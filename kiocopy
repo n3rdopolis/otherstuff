@@ -432,8 +432,8 @@ export QT_LOGGING_RULES=kf5.kio.*=true
 kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
 #diff -rq /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
-tree -a /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
-tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+tree -as /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
+tree -as /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
 
 sudo umount /tmp/kiocopy/$DateStamp/fsimg_src
