@@ -93,9 +93,15 @@ then
   rm /tmp/kiocopy/$DateStamp/fsimg_dest
 fi
 
-truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
+
+if [[ ! -e /tmp/kiocopy/$DateStamp/fsimg_src ]]
+then
+  truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
+  mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
+fi
+
+
 truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_dest
-mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
 mkfs.btrfs /tmp/kiocopy/$DateStamp/fsimg_dest
 
 sudo mount -o loop  /tmp/kiocopy/$DateStamp/fsimg_src /tmp/kiocopy/$DateStamp/folder_src
