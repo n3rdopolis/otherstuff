@@ -94,11 +94,9 @@ then
 fi
 
 
-if [[ ! -e /tmp/kiocopy/$DateStamp/fsimg_src ]]
-then
-  truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
-  mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
-fi
+
+truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
+mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
 
 
 truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_dest
