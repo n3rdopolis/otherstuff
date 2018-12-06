@@ -436,6 +436,7 @@ export QT_LOGGING_RULES=kf5.kio.*=true
 kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/report.log
 #diff -rq /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
+find /tmp/kiocopy/$DateStamp/folder_src/testdir > /tmp/kiocopy/$DateStamp/logs/treelist.txt
 tree -a /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
 tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
@@ -445,14 +446,20 @@ tree -as /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/l
 
 echo "Job Done, see:
 Log of kioclient: /tmp/kiocopy/$DateStamp/logs/kioclient.log
+All Items list: /tmp/kiocopy/$DateStamp/logs/treelist.txt
+
 Tree of the source: /tmp/kiocopy/$DateStamp/logs/src_tree.txt
 Tree of the target: /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+
+Tree of the source with sizes: /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt
+Tree of the target with sizes: /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt
+
 Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 
 "
 
 echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile.tar.xz"
-tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/Seed.txt
+tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/treelist.txt /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt /tmp/kiocopy/$DateStamp/Seed.txt
 
 echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff for the overall tree. Press enter."
 read a
