@@ -436,12 +436,11 @@ export QT_LOGGING_RULES=kf5.kio.*=true
 kioclient5 copy /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest &> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 echo "$?" >> /tmp/kiocopy/$DateStamp/logs/kioclient.log
 #diff -rq /tmp/kiocopy/$DateStamp/folder_src/testdir /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/folderdiff.txt
-find /tmp/kiocopy/$DateStamp/folder_src/testdir > /tmp/kiocopy/$DateStamp/logs/treelist.txt
-tree -a /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
-tree -a /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
+tree -aF /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree.txt
+tree -aF /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree.txt
 
-tree -as /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt
-tree -as /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt
+tree -asF /tmp/kiocopy/$DateStamp/folder_src/testdir  > /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt
+tree -asF /tmp/kiocopy/$DateStamp/folder_dest/testdir > /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt
 
 
 echo "Job Done, see:
@@ -459,7 +458,7 @@ Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 "
 
 echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile.tar.xz"
-tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/treelist.txt /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt "$SeedFile"
+tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt "$SeedFile"
 
 echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff for the overall tree. Press enter."
 read a
@@ -468,10 +467,9 @@ diff -u /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/d
 echo "press enter"
 read a
 
-echo "Will now start diff for the size tree. Press enter."
+echo "Will now start diff for the size tree (directories excluded). Press enter."
 read a
-diff -u /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt | more
-
+diff -u /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt | grep -v /$ | grep -v "^ " | grep -v "^@" | more
 
 echo "Press enter to remove test file systems. Press CTRL+C to not."
 read a
