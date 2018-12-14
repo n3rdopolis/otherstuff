@@ -33,7 +33,10 @@ LARGE_SUBIR_FILE_COUNT=100000
 MAX_FILES_COUNT=3
 MAX_FOLDER_COUNT=100000
 MAX_FILE_COUNT=1000000
-
+MAX_SYMLINK_COUNT=5
+MAX_FIFO_COUNT=100
+MAX_SOCKET_COUNT=100
+MAX_DENY_COUNT=5
 
 #Count Number of files and folders made
 ItemCount=0
@@ -378,6 +381,7 @@ do
 
   ItemSize=${SeedItemArray[0]}
   ItemPath=${SeedItemArray[1]}
+  ItemTarget=${SeedItemArray[2]}
 
   if [[ $ItemSize == d ]]
   then
@@ -389,6 +393,42 @@ do
       if [[ $? != 0 ]]
       then
         echo "Failed to create folder $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
+      fi
+    fi
+  elif [[ $ItemSize == link ]]
+  then
+    if [[ $DoDryRun == 1 ]]
+    then
+      echo "Would have created symlink at $ItemPath to $ItemTarget"
+    else
+      ln -s "$ItemPath" "$ItemTarget"
+      if [[ $? != 0 ]]
+      then
+        echo "Failed to symlink at $ItemPath to $ItemTarget" >> /tmp/kiocopy/$DateStamp/logs/self.log
+      fi
+    fi
+  elif [[ $ItemSize == fifo ]]
+  then
+    if [[ $DoDryRun == 1 ]]
+    then
+      echo "Would have created FIFO $ItemPath"
+    else
+      mkfifo "$ItemPath"
+      if [[ $? != 0 ]]
+      then
+        echo "Failed to create FIFO $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
+      fi
+    fi
+  elif [[ $ItemSize == socket ]]
+  then
+    if [[ $DoDryRun == 1 ]]
+    then
+      echo "Would have created socket $ItemPath"
+    else
+      python -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('$ItemPath')"
+      if [[ $? != 0 ]]
+      then
+        echo "Failed to create socket $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
       fi
     fi
   elif [[ $ItemSize == 0 ]]
@@ -415,7 +455,19 @@ do
         echo "Failed to fast created 1024 byte file $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
       fi
     fi
-  else
+  elif [[ $ItemSize == deny ]]
+  then
+    if [[ $DoDryRun == 1 ]]
+    then
+      echo "Would have denied access to $ItemPath"
+    else
+      chmod 000 "$ItemPath"
+      if [[ $? != 0 ]]
+      then
+        echo "Failed to deny access to $ItemPath" >> /tmp/kiocopy/$DateStamp/logs/self.log
+      fi
+    fi
+    else
     if [[ $DoDryRun == 1 ]]
     then
       echo "Would have created $ItemSize byte file $ItemPath"
