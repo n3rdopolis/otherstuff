@@ -44,6 +44,7 @@ ItemCount=0
 FolderCount=0
 FileCount=0
 SymlinkCount=0
+DenyCount=0
 
 if [[ -e /usr/lib/bash/mkdir ]]
 then
@@ -350,9 +351,11 @@ function CreateSeededFiles {
   done
 }
 
+#Create a live and dead symlink, for files or folers
 SymlinkList=()
 function CreateSeededSymlink {
   FolderCount=${#FolderList[@]}
+  FileCount=${#FileList[@]}
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
@@ -380,12 +383,37 @@ function CreateSeededSymlink {
 
   SymlinkList+=("$NewPath")
 
-  FolderList+=("$NewPath")
   ((ItemCount++))
   ((SymlinkCount++))
 
   echo "link"$'\r'"$NewPath"$'\r'"$TargetFolderName" >> /tmp/kiocopy/$DateStamp/Seed.txt
   echo "link"$'\r'"${NewPath}dead"$'\r'"${TargetFolderName}dead" >> /tmp/kiocopy/$DateStamp/Seed.txt
+}
+
+
+DenyList=()
+function CreateSeededDeny {
+  FolderCount=${#FolderList[@]}
+  FileCount=${#FileList[@]}
+
+  ItemType=$(( $RANDOM % 2 ))
+  if [[ $ItemType == 0 ]]
+  then
+    DenyItemID=$(( $RANDOM*$RANDOM % $FolderCount ))
+    DenyItemName=${FolderList[$DenyItemID]}
+  else
+    DenyItemID=$(( $RANDOM*$RANDOM % $FileCount ))
+    DenyItemName=${FileList[$DenyItemID]}
+  fi
+
+  #If the root object is denied, then the whole test won't work
+  if [[ $DenyItemID != 0 ]]
+  then
+    DenyList+=($DenyItemName)
+    ((DenyCount++))
+
+    echo "deny"$'\r'"$DenyItemName" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  fi
 }
 
 if [[ -z $SeedFile ]]
