@@ -258,9 +258,9 @@ function CreateSeededFolder {
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
-    NewPath="$DestFolderName$NewFolderName$ItemCount"
+    NewPath="$DestFolderName$NewFolderName"
   else
-    NewPath="$DestFolderName/$NewFolderName$ItemCount"
+    NewPath="$DestFolderName/$NewFolderName"
   fi
 
   FolderList+=("$NewPath")
@@ -343,6 +343,34 @@ function CreateSeededFiles {
   done
 }
 
+
+function CreateSeededSymlink {
+  FolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  DestFolderName=${FolderList[$DestFolderID]}
+
+  TargetFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  TargetFolderName=${FolderList[$DestFolderID]}
+
+  CreateObjectName 0 NewFolderName
+  NewFolderName=$ItemCount$NewFolderName
+
+
+  LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
+  if [[ $LastDestFolderName == "/" ]]
+  then
+    NewPath="$DestFolderName$NewFolderName"
+  else
+    NewPath="$DestFolderName/$NewFolderName"
+  fi
+
+  FolderList+=("$NewPath")
+  ((ItemCount++))
+  ((FileCount++))
+
+  echo "link"$'\r'"$NewPath"$'\r'"$TargetFolderName" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  echo "link"$'\r'"${NewPath}dead"$'\r'"${TargetFolderName}dead" >> /tmp/kiocopy/$DateStamp/Seed.txt
+}
 
 if [[ -z $SeedFile ]]
 then
