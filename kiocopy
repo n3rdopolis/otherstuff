@@ -274,6 +274,7 @@ function CreateSeededFolder {
 
 #This creates files, it randomly selects the index of a folder, grabs the name, creates a random file name
 #and creates the file, saving the full path to an array
+FileList=()
 function CreateSeededFile {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
@@ -289,6 +290,8 @@ function CreateSeededFile {
   else
     NewPath="$DestFolderName/$NewFileName"
   fi
+  
+  FileList+=("$NewPath")
 
   #Determine what the size of the file should be
   if [[ $FileCount -le 3 ]]
@@ -319,6 +322,7 @@ function CreateSeededFile {
 }
 
 #Fill one folder with lots of files
+FilesList=()
 function CreateSeededFiles {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
@@ -334,6 +338,8 @@ function CreateSeededFiles {
   else
     NewPath="$DestFolderName/$NewFileName"
   fi
+  
+  FilesList+=("$NewPath")
 
   NewSize=1024
   ((ItemCount++))
@@ -344,13 +350,13 @@ function CreateSeededFiles {
   done
 }
 
-
+SymlinkList=()
 function CreateSeededSymlink {
   FolderCount=${#FolderList[@]}
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
-  ItemType=0
+  ItemType=$(( $RANDOM % 2 ))
   if [[ $ItemType == 0 ]]
   then
     TargetItemID=$(( $RANDOM*$RANDOM % $FolderCount ))
@@ -371,6 +377,8 @@ function CreateSeededSymlink {
   else
     NewPath="$DestFolderName/$NewFolderName"
   fi
+
+  SymlinkList+=("$NewPath")
 
   FolderList+=("$NewPath")
   ((ItemCount++))
