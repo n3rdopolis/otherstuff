@@ -5,8 +5,13 @@ set +H
 DoDryRun=0
 
 #Argument is a seed file
-#Seed File format. Two colunms. one is the size, one is the path
-#if the size is d, then the item is a directory, rows have unix newlines, columns are separated by $'\r'
+#Seed File format. Three colunms. one is the size, one is the path. Third is the link destination. Only valid for symlinks
+#if the size is d, then the item is a directory
+#if the size is fifo, then the item is a FIFO
+#if the size is socket, then the item is a socket
+#if the size is link, then the item is a symlink
+#If the size is deny, then a permisson of 000 will be chmoded for the item
+#rows have unix newlines, columns are separated by $'\r'
 #For best handling in the array since spaces and tabs are used in test filenames
 #Except the first row is the datestamp
 SeedFile="$1"
@@ -33,10 +38,6 @@ LARGE_SUBIR_FILE_COUNT=100000
 MAX_FILES_COUNT=3
 MAX_FOLDER_COUNT=100000
 MAX_FILE_COUNT=1000000
-MAX_SYMLINK_COUNT=5
-MAX_FIFO_COUNT=100
-MAX_SOCKET_COUNT=100
-MAX_DENY_COUNT=5
 
 #Count Number of files and folders made
 ItemCount=0
@@ -301,6 +302,12 @@ function CreateSeededFile {
   elif [[ ($FileCount -gt 10013) && ($FileCount -le 10113) ]]
   then
     NewSize=1048576
+  elif [[ ($FileCount -gt 10113) && ($FileCount -le 10123) ]]
+  then
+    NewSize=fifo
+  elif [[ ($FileCount -gt 10133) && ($FileCount -le 10143) ]]
+  then
+    NewSize=socket
   else
     NewSize=1024
   fi
