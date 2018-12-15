@@ -349,8 +349,15 @@ function CreateSeededSymlink {
   DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
-  TargetFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
-  TargetFolderName=${FolderList[$DestFolderID]}
+  ItemType=0
+  if [[ $ItemType == 0 ]]
+  then
+    TargetItemID=$(( $RANDOM*$RANDOM % $FolderCount ))
+    TargetItemName=${FolderList[$TargetItemID]}
+  else
+    TargetItemID=$(( $RANDOM*$RANDOM % $FileCount ))
+    TargetItemName=${FileList[$TargetItemID]}
+  fi
 
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
