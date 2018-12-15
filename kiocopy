@@ -249,8 +249,8 @@ function CreateObjectName {
 FolderList=()
 FolderList+=("/tmp/kiocopy/$DateStamp/folder_src/testdir/")
 function CreateSeededFolder {
-  FolderCount=${#FolderList[@]}
-  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  ArrFolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
   CreateObjectName 0 NewFolderName
@@ -277,8 +277,8 @@ function CreateSeededFolder {
 #and creates the file, saving the full path to an array
 FileList=()
 function CreateSeededFile {
-  FolderCount=${#FolderList[@]}
-  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  ArrFolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
   CreateObjectName 1 NewFileName
@@ -325,8 +325,8 @@ function CreateSeededFile {
 #Fill one folder with lots of files
 FilesList=()
 function CreateSeededFiles {
-  FolderCount=${#FolderList[@]}
-  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  ArrFolderCount=${#FolderList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
   CreateObjectName 1 NewFileName
@@ -354,18 +354,18 @@ function CreateSeededFiles {
 #Create a live and dead symlink, for files or folers
 SymlinkList=()
 function CreateSeededSymlink {
-  FolderCount=${#FolderList[@]}
-  FileCount=${#FileList[@]}
-  DestFolderID=$(( $RANDOM*$RANDOM % $FolderCount ))
+  ArrFolderCount=${#FolderList[@]}
+  ArrFileCount=${#FileList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
   ItemType=$(( $RANDOM % 2 ))
   if [[ $ItemType == 0 ]]
   then
-    TargetItemID=$(( $RANDOM*$RANDOM % $FolderCount ))
+    TargetItemID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
     TargetItemName=${FolderList[$TargetItemID]}
   else
-    TargetItemID=$(( $RANDOM*$RANDOM % $FileCount ))
+    TargetItemID=$(( $RANDOM*$RANDOM % $ArrFileCount ))
     TargetItemName=${FileList[$TargetItemID]}
   fi
 
@@ -393,16 +393,16 @@ function CreateSeededSymlink {
 
 DenyList=()
 function CreateSeededDeny {
-  FolderCount=${#FolderList[@]}
-  FileCount=${#FileList[@]}
+  ArrFolderCount=${#FolderList[@]}
+  ArrFileCount=${#FileList[@]}
 
   ItemType=$(( $RANDOM % 2 ))
   if [[ $ItemType == 0 ]]
   then
-    DenyItemID=$(( $RANDOM*$RANDOM % $FolderCount ))
+    DenyItemID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
     DenyItemName=${FolderList[$DenyItemID]}
   else
-    DenyItemID=$(( $RANDOM*$RANDOM % $FileCount ))
+    DenyItemID=$(( $RANDOM*$RANDOM % $ArrFileCount ))
     DenyItemName=${FileList[$DenyItemID]}
   fi
 
