@@ -315,6 +315,8 @@ function CreateSeededFile {
     NewSize=1024
   elif [[ ($FileCount -gt 10133) && ($FileCount -le 10143) ]]
   then
+    #DestFolderName=${FolderList[0]}
+    #NewPath="$DestFolderName$NewFileName"
     #NewSize=socket
     NewSize=1024
   else
