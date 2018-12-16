@@ -386,8 +386,8 @@ function CreateSeededSymlink {
   ((ItemCount++))
   ((SymlinkCount++))
 
-  echo "link"$'\r'"$NewPath"$'\r'"$TargetFolderName" >> /tmp/kiocopy/$DateStamp/Seed.txt
-  echo "link"$'\r'"${NewPath}dead"$'\r'"${TargetFolderName}dead" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  echo "link"$'\r'"$NewPath"$'\r'"$TargetItemName" >> /tmp/kiocopy/$DateStamp/Seed.txt
+  echo "link"$'\r'"${NewPath}dead"$'\r'"${TargetItemName}dead" >> /tmp/kiocopy/$DateStamp/Seed.txt
 }
 
 
