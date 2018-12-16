@@ -311,10 +311,12 @@ function CreateSeededFile {
     NewSize=1048576
   elif [[ ($FileCount -gt 10113) && ($FileCount -le 10123) ]]
   then
-    NewSize=fifo
+    #NewSize=fifo
+    NewSize=1024
   elif [[ ($FileCount -gt 10133) && ($FileCount -le 10143) ]]
   then
-    NewSize=socket
+    #NewSize=socket
+    NewSize=1024
   else
     NewSize=1024
   fi
