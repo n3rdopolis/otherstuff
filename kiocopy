@@ -358,7 +358,9 @@ function CreateSeededFiles {
 #Create a live and dead symlink, for files or folers
 SymlinkList=()
 function CreateSeededSymlink {
-  DestFolderID=0
+  ArrFolderCount=${#FolderList[@]}
+  ArrFileCount=${#FileList[@]}
+  DestFolderID=$(( $RANDOM*$RANDOM % $ArrFolderCount ))
   DestFolderName=${FolderList[$DestFolderID]}
 
   ItemType=$(( $RANDOM % 2 ))
