@@ -500,7 +500,7 @@ do
     then
       echo "Would have created symlink at $ItemPath to $ItemTarget"
     else
-      ln -s "$ItemPath" "$ItemTarget"
+      ln -s "$ItemTarget" "$ItemPath"
       if [[ $? != 0 ]]
       then
         echo "Failed to symlink at $ItemPath to $ItemTarget" >> /tmp/kiocopy/$DateStamp/logs/self.log
