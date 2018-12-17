@@ -30,7 +30,7 @@ fi
 
 FS_SIZE=50G
 MAX_FILE_LENGTH=10
-FILE_LENGTH_IF_ZERO=20
+FILE_LENGTH_IF_ZERO=255
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
 
@@ -257,7 +257,7 @@ function CreateSeededFolder {
 
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
-
+  NewFolderName=${NewFolderName::255}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -285,6 +285,7 @@ function CreateSeededFile {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
+  NewFileName=${NewFileName::255}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -337,6 +338,7 @@ function CreateSeededFiles {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
+  NewFileName=${NewFileName::255}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -375,16 +377,17 @@ function CreateSeededSymlink {
     TargetItemName=${FileList[$TargetItemID]}
   fi
 
-  CreateObjectName 0 NewFolderName
-  NewFolderName=$ItemCount$NewFolderName
+  CreateObjectName 0 NewSymlinkName
+  NewSymlinkName=$ItemCount$NewSymlinkName
+  NewSymlinkName=${NewSymlinkName::255}
 
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
   then
-    NewPath="$DestFolderName$NewFolderName"
+    NewPath="$DestFolderName$NewSymlinkName"
   else
-    NewPath="$DestFolderName/$NewFolderName"
+    NewPath="$DestFolderName/$NewSymlinkName"
   fi
 
   SymlinkList+=("$NewPath")
