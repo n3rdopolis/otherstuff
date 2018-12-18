@@ -40,12 +40,12 @@ FILE_LENGTH_IF_ZERO=255
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
 
-LARGE_SUBIR_FILE_COUNT=100
+LARGE_SUBIR_FILE_COUNT=1000
 MAX_FILES_COUNT=3
-MAX_FOLDER_COUNT=10
-MAX_FILE_COUNT=100
+MAX_FOLDER_COUNT=1000
+MAX_FILE_COUNT=10000
 MAX_SYMLINK_COUNT=10
-MAX_DENY_COUMT=0
+MAX_DENY_COUNT=0
 
 #Count Number of files and folders made
 ItemCount=0
@@ -462,7 +462,7 @@ then
 
   #Create deny items
   echo "Creating deny seeds..."
-  for (( DenyItr=0 ; DenyItr < $MAX_DENY_COUMT ; DenyItr++ ))
+  for (( DenyItr=0 ; DenyItr < $MAX_DENY_COUNT ; DenyItr++ ))
   do
     CreateSeededDeny
   done
