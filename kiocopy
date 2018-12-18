@@ -264,7 +264,6 @@ function CreateSeededFolder {
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
   NewFolderName=${NewFolderName::255}
-  echo ${#NewFolderName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -293,7 +292,6 @@ function CreateSeededFile {
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
   NewFileName=${NewFileName::255}
-  echo ${#NewFileName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -347,7 +345,6 @@ function CreateSeededFiles {
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
   NewFileName=${NewFileName::255}
-  echo ${#NewFileName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -388,8 +385,7 @@ function CreateSeededSymlink {
 
   CreateObjectName 0 NewSymlinkName
   NewSymlinkName=$ItemCount$NewSymlinkName
-  NewSymlinkName=${NewSymlinkName::255}
-  echo ${#NewSymlinkName}
+  NewSymlinkName=${NewSymlinkName::250}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
