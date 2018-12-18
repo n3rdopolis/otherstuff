@@ -21,6 +21,12 @@ then
   exit
 fi
 
+OLD_LC_ALL=$LC_ALL
+OLD_LANG=$LANG
+
+LC_ALL=C 
+LANG=C
+
 if [[ -z $SeedFile ]]
 then
   DateStamp=$(date +%s)
@@ -34,10 +40,10 @@ FILE_LENGTH_IF_ZERO=255
 MAX_FILES_WITH_NONLETTERS=1024
 MAX_FOLDERS_WITH_NONLETTERS=1024
 
-LARGE_SUBIR_FILE_COUNT=100000
+LARGE_SUBIR_FILE_COUNT=100
 MAX_FILES_COUNT=3
-MAX_FOLDER_COUNT=100000
-MAX_FILE_COUNT=1000000
+MAX_FOLDER_COUNT=10
+MAX_FILE_COUNT=100
 MAX_SYMLINK_COUNT=10
 MAX_DENY_COUMT=0
 
@@ -258,6 +264,7 @@ function CreateSeededFolder {
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
   NewFolderName=${NewFolderName::255}
+  echo ${#NewFolderName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -286,6 +293,7 @@ function CreateSeededFile {
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
   NewFileName=${NewFileName::255}
+  echo ${#NewFileName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -339,6 +347,7 @@ function CreateSeededFiles {
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
   NewFileName=${NewFileName::255}
+  echo ${#NewFileName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -380,7 +389,7 @@ function CreateSeededSymlink {
   CreateObjectName 0 NewSymlinkName
   NewSymlinkName=$ItemCount$NewSymlinkName
   NewSymlinkName=${NewSymlinkName::255}
-
+  echo ${#NewSymlinkName}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -582,6 +591,9 @@ do
     fi
   fi
 done
+
+LC_ALL=$OLD_LC_ALL
+LANG=$OLD_LANG
 
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
