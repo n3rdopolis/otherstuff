@@ -21,12 +21,6 @@ then
   exit
 fi
 
-OLD_LC_ALL=$LC_ALL
-OLD_LANG=$LANG
-
-LC_ALL=C 
-LANG=C
-
 if [[ -z $SeedFile ]]
 then
   DateStamp=$(date +%s)
@@ -191,7 +185,7 @@ function CapStringSize
   for (( StrItr=0 ; StrItr < $TotalChars ; StrItr++ ))
   do
     CurrentChar=${InString:$StrItr:1}
-    CharByteCount $CurrentChar CharBytes
+    CharByteCount "$CurrentChar" CharBytes
     ((TotalByteCount+=CharBytes))
     if [[ $TotalByteCount -le $MaxBytes ]]
     then
@@ -336,7 +330,7 @@ function CreateSeededFolder {
 
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
-  NewFolderName=${NewFolderName::255}
+  CapStringSize "$NewFolderName" 255 NewFolderName
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -364,7 +358,7 @@ function CreateSeededFile {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
-  NewFileName=${NewFileName::255}
+  CapStringSize "$NewFileName" 255 NewFileName
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -417,7 +411,7 @@ function CreateSeededFiles {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
-  NewFileName=${NewFileName::240}
+  CapStringSize "$NewFileName" 240 NewFileName
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -458,7 +452,7 @@ function CreateSeededSymlink {
 
   CreateObjectName 0 NewSymlinkName
   NewSymlinkName=$ItemCount$NewSymlinkName
-  NewSymlinkName=${NewSymlinkName::250}
+  CapStringSize "$NewSymlinkName" 250 NewSymlinkName
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -660,9 +654,6 @@ do
     fi
   fi
 done
-
-LC_ALL=$OLD_LC_ALL
-LANG=$OLD_LANG
 
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
