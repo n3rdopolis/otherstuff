@@ -344,7 +344,7 @@ function CreateSeededFiles {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
-  NewFileName=${NewFileName::255}
+  NewFileName=${NewFileName::240}
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
