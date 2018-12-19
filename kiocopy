@@ -143,6 +143,7 @@ mkdir /tmp/kiocopy/$DateStamp/folder_src/testdir
 # 11110XXX 10XXXXXX 10XXXXXX 10XXXXXX - 4 bytes, 11 bits padding, 21 bits free, max 1114111
 # Thanks to https://naveenr.net/unicode-character-set-and-utf-8-utf-16-utf-32-encoding/
 #First argument is the char, the second variable is the variable to populate with the number of bytes for that char
+#Third is the optional argument is the name of the variable to populate the count with
 function CharByteCount
 {
   Byte=$1
@@ -172,6 +173,39 @@ function CharByteCount
     printf -v "$2" '%s' "$ByteCount"
   else
     echo "$ByteCount"
+  fi
+}
+
+#Limit a given string to a number of given BYTES.
+#First argument is the string
+#Second argument is the number of bytes
+#Third optional argument is the variable to populate with the string
+function CapStringSize
+{
+  InString=$1
+  MaxBytes=$2
+  
+  TotalByteCount=0
+  TotalChars=${#InString}
+  OutCappedString=""
+  for (( StrItr=0 ; StrItr < $TotalChars ; StrItr++ ))
+  do
+    CurrentChar=${InString:$StrItr:1}
+    CharByteCount $CurrentChar CharBytes
+    ((TotalByteCount+=CharBytes))
+    if [[ $TotalByteCount -le $MaxBytes ]]
+    then
+      OutCappedString+=$CurrentChar
+    else
+      break
+    fi
+  done
+
+  if [[ ! -z $3 ]]
+  then
+    printf -v "$3" '%s' "$OutCappedString"
+  else
+    echo "$OutCappedString"
   fi
 }
 
