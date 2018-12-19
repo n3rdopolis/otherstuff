@@ -147,33 +147,31 @@ function CharByteCount
 {
   Byte=$1
   printf -v charvalue '%u' "'$Byte"
-  #4 bytes, 11 bits padded, UTF32 max is 1114111
-  if [[ $charvalue -le 1114111 ]]
-  then
-    ByteCount=4
-  fi
-  #3 Bytes, 8 bits padded
-  if [[ $charvalue -le 65535 ]]
-  then
-    ByteCount=3
-  fi
-  #2 Bytes, 5 bits padded. Upper ASCII chars seem to be treated as 2 bytes too
-  if [[ $charvalue -le 2047 ]]
-  then
-    ByteCount=2
-  fi
+
   #ASCII, 1 byte. Only lower ascii (0-127) seem to take 1 byte. 1 bit padding
   if [[ $charvalue -le 127 ]]
   then
     ByteCount=1
+  #2 Bytes, 5 bits padded. Upper ASCII chars seem to be treated as 2 bytes too
+  elif [[ $charvalue -le 2047 ]]
+  then
+    ByteCount=2
+  #3 Bytes, 8 bits padded
+  elif [[ $charvalue -le 65535 ]]
+  then
+    ByteCount=3
+  #4 bytes, 11 bits padded, UTF32 max is 1114111
+  elif [[ $charvalue -le 1114111 ]]
+  then
+    ByteCount=4
   fi
 
 
   if [[ ! -z $2 ]]
   then
-    printf -v "$2" '%s' "$ChooseChar"
+    printf -v "$2" '%s' "$ByteCount"
   else
-    echo "$ChooseChar"
+    echo "$ByteCount"
   fi
 }
 
