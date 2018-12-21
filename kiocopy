@@ -28,6 +28,7 @@ else
   DateStamp=$(head -1 $SeedFile)
 fi
 
+TEST_INVALID_UNICODE_CHARS=0
 FS_SIZE=50G
 MAX_FILE_LENGTH=10
 FILE_LENGTH_IF_ZERO=255
@@ -51,6 +52,15 @@ DenyCount=0
 if [[ -e /usr/lib/bash/mkdir ]]
 then
   enable -f /usr/lib/bash/mkdir mkdir
+fi
+
+if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+then
+  OLD_LC_ALL=$LC_ALL
+  OLD_LANG=$LANG
+
+  LC_ALL=C
+  LANG=C
 fi
 
 echo "Warning: This tries to create GB worth of files in /tmp."
@@ -330,7 +340,12 @@ function CreateSeededFolder {
 
   CreateObjectName 0 NewFolderName
   NewFolderName=$ItemCount$NewFolderName
-  CapStringSize "$NewFolderName" 255 NewFolderName
+  if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+  then
+    NewFolderName=${NewFolderName::255}
+  else
+    CapStringSize "$NewFolderName" 255 NewFolderName
+  fi
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -358,7 +373,12 @@ function CreateSeededFile {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
-  CapStringSize "$NewFileName" 255 NewFileName
+  if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+  then
+    NewFileName=${NewFileName::255}
+  else
+    CapStringSize "$NewFileName" 255 NewFileName
+  fi
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -411,7 +431,12 @@ function CreateSeededFiles {
 
   CreateObjectName 1 NewFileName
   NewFileName=$ItemCount$NewFileName
-  CapStringSize "$NewFileName" 240 NewFileName
+  if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+  then
+    NewFileName=${NewFileName::240}
+  else
+    CapStringSize "$NewFileName" 240 NewFileName
+  fi
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -452,7 +477,12 @@ function CreateSeededSymlink {
 
   CreateObjectName 0 NewSymlinkName
   NewSymlinkName=$ItemCount$NewSymlinkName
-  CapStringSize "$NewSymlinkName" 250 NewSymlinkName
+  if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+  then
+    NewSymlinkName=${NewSymlinkName::250}
+  else
+    CapStringSize "$NewSymlinkName" 250 NewSymlinkName
+  fi
 
   LastDestFolderName=${DestFolderName:$((${#DestFolderName} -1 )):1}
   if [[ $LastDestFolderName == "/" ]]
@@ -654,6 +684,12 @@ do
     fi
   fi
 done
+
+if [[ $TEST_INVALID_UNICODE_CHARS == 1 ]]
+then
+  LC_ALL=$OLD_LC_ALL
+  LANG=$OLD_LANG
+fi
 
 #The actual test for trying to copy the folders, along with post logging.
 echo "Running the test..."
