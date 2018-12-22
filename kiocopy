@@ -5,7 +5,8 @@ set +H
 DoDryRun=0
 
 #Argument is a seed file
-#Seed File format. Three colunms. one is the size, one is the path. Third is the link destination. Only valid for symlinks
+#Seed File format. Except for the first row, there are three colunms. one is the size, 
+#one is the path. Third is the link destination which is Only valid for symlinks
 #if the size is d, then the item is a directory
 #if the size is fifo, then the item is a FIFO
 #if the size is socket, then the item is a socket
@@ -24,20 +25,24 @@ fi
 if [[ -z $SeedFile ]]
 then
   DateStamp=$(date +%s)
+
+  #Filesystem controls
+  FS_SIZE=50G
+  SOURCE_FS=ext4
+  TARGET_FS=btrfs
 else
   SeedSettingsArray=$(head -1 $SeedFile)
   IFS=$'\r'
   SeedSettingsArray=($SeedSettingsArray)
   unset IFS
+
   DateStamp=${SeedSettingsArray[0]}
+  FS_SIZE=${SeedSettingsArray[1]}
+  SOURCE_FS=${SeedSettingsArray[2]}
+  TARGET_FS=${SeedSettingsArray[3]}
 fi
 
 ##########Test Parameters
-
-#Filesystem controls
-FS_SIZE=50G
-SOURCE_FS=ext4
-TARGET_FS=btrfs
 
 #Control file names, only a subset of items to create
 #names with non alpha-numeric chars, or if incorrect Unicode
@@ -102,7 +107,7 @@ mkdir /tmp/kiocopy
 mkdir /tmp/kiocopy/$DateStamp
 if [[ -z $SeedFile ]]
 then
-  echo $DateStamp$'\r'$SOURCE_FS$'\r'$TARGET_FS > /tmp/kiocopy/$DateStamp/Seed.txt
+  echo $DateStamp$'\r'$FS_SIZE$'\r'$SOURCE_FS$'\r'$TARGET_FS > /tmp/kiocopy/$DateStamp/Seed.txt
 fi
 
 mkdir /tmp/kiocopy/$DateStamp/folder_src
