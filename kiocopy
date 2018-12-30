@@ -115,6 +115,7 @@ mkdir /tmp/kiocopy/$DateStamp/folder_dest
 mkdir /tmp/kiocopy/$DateStamp/logs
 rm /tmp/kiocopy/$DateStamp/logs/self.log
 
+#Function to create an image, (first argument), mount it to a path (second argument), with the specified type (third argument), and size (fourth argument)
 function MountFSImage
 {
   ImagePath=$1
@@ -155,52 +156,11 @@ function MountFSImage
   sudo chown $UID "$MountPath"
 }
 
-#Unmount old paths, if mounted
-mountpoint -q /tmp/kiocopy/$DateStamp/folder_src
-if [[ $? == 0 ]]
-then
-  sudo umount /tmp/kiocopy/$DateStamp/folder_src
-fi
-mountpoint -q /tmp/kiocopy/$DateStamp/folder_dest
-if [[ $? == 0 ]]
-then
-  sudo umount /tmp/kiocopy/$DateStamp/folder_dest
-fi
-
-#Remove old test fses if they exist
-if [[ -e /tmp/kiocopy/$DateStamp/fsimg_src ]]
-then
-  rm /tmp/kiocopy/$DateStamp/fsimg_src
-fi
-if [[ -e /tmp/kiocopy/$DateStamp/fsimg_dest ]]
-then
-  rm /tmp/kiocopy/$DateStamp/fsimg_dest
-fi
+#Create the filesystems
+MountFSImage /tmp/kiocopy/$DateStamp/fsimg_src /tmp/kiocopy/$DateStamp/folder_src  $SOURCE_FS $FS_SIZE
+MountFSImage /tmp/kiocopy/$DateStamp/fsimg_dest /tmp/kiocopy/$DateStamp/folder_dest $TARGET_FS $FS_SIZE
 
 
-
-truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_src
-mkfs.ext4  /tmp/kiocopy/$DateStamp/fsimg_src
-
-
-truncate --size $FS_SIZE /tmp/kiocopy/$DateStamp/fsimg_dest
-mkfs.btrfs /tmp/kiocopy/$DateStamp/fsimg_dest
-
-sudo mount -o loop  /tmp/kiocopy/$DateStamp/fsimg_src /tmp/kiocopy/$DateStamp/folder_src
-if [[ $? != 0 ]]
-then
-  echo "EXT4 FS failed to mount"
-  exit
-fi
-sudo mount -o loop  /tmp/kiocopy/$DateStamp/fsimg_dest /tmp/kiocopy/$DateStamp/folder_dest
-if [[ $? != 0 ]]
-then
-  echo "BTRFS FS failed to mount"
-  exit
-fi
-
-sudo chown $UID /tmp/kiocopy/$DateStamp/folder_src
-sudo chown $UID /tmp/kiocopy/$DateStamp/folder_dest
 
 mkdir /tmp/kiocopy/$DateStamp/folder_src/testdir
 
