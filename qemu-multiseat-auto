@@ -1,5 +1,9 @@
 qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga std -enable-kvm -display sdl \
--device pci-bridge-seat,addr=12.0,chassis_nr=2,id=head.2 \
+-device pci-bridge-seat,chassis_nr=2,id=head.2 \
 -device secondary-vga,bus=head.2,addr=02.0,id=video.2 \
 -device virtio-keyboard-pci,bus=head.2,addr=03.0,display=video.2 \
--device virtio-tablet-pci,bus=head.2,addr=4.0,display=video.2
+-device virtio-tablet-pci,bus=head.2,addr=4.0,display=video.2 \
+-device pci-bridge-seat,chassis_nr=3,id=head.3 \
+-device secondary-vga,bus=head.3,addr=05.0,id=video.3 \
+-device virtio-keyboard-pci,bus=head.3,addr=06.0,display=video.3 \
+-device virtio-tablet-pci,bus=head.3,addr=7.0,display=video.3
