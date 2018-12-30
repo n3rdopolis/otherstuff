@@ -764,10 +764,11 @@ Seed File: /tmp/kiocopy/$DateStamp/Seed.txt
 
 "
 
-echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile.tar.xz"
-tar -cavf /tmp/kiocopy/$DateStamp/ReportFile.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt "$SeedFile"
+ReportDateStamp=$(date +%s)
+echo "Generating tar file. /tmp/kiocopy/$DateStamp/ReportFile_$ReportDateStamp.tar.xz"
+tar -cavf /tmp/kiocopy/$DateStamp/ReportFile_$ReportDateStamp.tar.xz /tmp/kiocopy/$DateStamp/logs/kioclient.log /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt /tmp/kiocopy/$DateStamp/logs/src_tree_size.txt /tmp/kiocopy/$DateStamp/logs/dest_tree_size.txt "$SeedFile"
 
-echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile.tar.xz complete. Will now start diff for the overall tree. Press enter."
+echo "Creation of /tmp/kiocopy/$DateStamp/ReportFile_$ReportDateStamp.tar.xz complete. Will now start diff for the overall tree. Press enter."
 read a
 diff -u /tmp/kiocopy/$DateStamp/logs/src_tree.txt /tmp/kiocopy/$DateStamp/logs/dest_tree.txt | more
 
