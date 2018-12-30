@@ -152,6 +152,7 @@ function MountFSImage
     echo "$ImagePath ( type: $FSType Size: $FSSize ) failed to mount at $MountPath"
     exit
   fi
+  sudo chown $UID "$MountPath"
 }
 
 #Unmount old paths, if mounted
