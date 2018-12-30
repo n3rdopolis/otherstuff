@@ -131,9 +131,19 @@ function MountFSImage
     rm "$ImagePath"
   fi
   truncate --size "$FSSize" "$ImagePath"
-  mkfs."$FSType" "$ImagePath"
   mkdir -p "$MountPath"
-  sudo mount -o loop  "$ImagePath" "$MountPath"
+  if [[ $FSType == ntfs ]]
+  then
+    mkfs."$FSType" -F -Q "$ImagePath"
+    sudo mount -o loop  "$ImagePath" "$MountPath"
+  elif [[ $FSType == fat ]]
+  then
+    mkfs."$FSType" "$ImagePath"
+    sudo mount -o loop,rw,uid=$UID  "$ImagePath" "$MountPath"
+  else
+    mkfs."$FSType" "$ImagePath"
+    sudo mount -o loop  "$ImagePath" "$MountPath"
+  fi
 }
 
 #Unmount old paths, if mounted
