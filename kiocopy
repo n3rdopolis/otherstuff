@@ -115,6 +115,27 @@ mkdir /tmp/kiocopy/$DateStamp/folder_dest
 mkdir /tmp/kiocopy/$DateStamp/logs
 rm /tmp/kiocopy/$DateStamp/logs/self.log
 
+function MountFSImage
+{
+  ImagePath=$1
+  MountPath=$2
+  FSType=$3
+  FSSize=$4
+  mountpoint -q "$MountPath"
+  if [[ $? == 0 ]]
+  then
+    sudo umount "$MountPath"
+  fi
+  if [[ -e "$ImagePath" ]]
+  then
+    rm "$ImagePath"
+  fi
+  truncate --size "$FSSize" "$ImagePath"
+  mkfs."$FSType" "$ImagePath"
+  mkdir -p "$MountPath"
+  sudo mount -o loop  "$ImagePath" "$MountPath"
+}
+
 #Unmount old paths, if mounted
 mountpoint -q /tmp/kiocopy/$DateStamp/folder_src
 if [[ $? == 0 ]]
