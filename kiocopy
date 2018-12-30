@@ -22,26 +22,6 @@ then
   exit
 fi
 
-if [[ -z $SeedFile ]]
-then
-  DateStamp=$(date +%s)
-
-  #Filesystem controls
-  FS_SIZE=50G
-  SOURCE_FS=ext4
-  TARGET_FS=btrfs
-else
-  SeedSettingsArray=$(head -1 $SeedFile)
-  IFS=$'\r'
-  SeedSettingsArray=($SeedSettingsArray)
-  unset IFS
-
-  DateStamp=${SeedSettingsArray[0]}
-  FS_SIZE=${SeedSettingsArray[1]}
-  SOURCE_FS=${SeedSettingsArray[2]}
-  TARGET_FS=${SeedSettingsArray[3]}
-fi
-
 ##########Test Parameters
 
 #Control file names, only a subset of items to create
@@ -65,7 +45,46 @@ MAX_FILE_COUNT=10000
 MAX_SYMLINK_COUNT=10
 MAX_DENY_COUNT=0
 
+#Filesystem controls
+DEFAULT_FS_SIZE=50G
+DEFAULT_SOURCE_FS=ext4
+DEFAULT_TARGET_FS=btrfs
+
 ##########
+
+if [[ -z $SeedFile ]]
+then
+  DateStamp=$(date +%s)
+
+  FS_SIZE=$DEFAULT_FS_SIZE
+  SOURCE_FS=$DEFAULT_SOURCE_FS
+  TARGET_FS=$DEFAULT_TARGET_FS
+else
+  SeedSettingsArray=$(head -1 $SeedFile)
+  IFS=$'\r'
+  SeedSettingsArray=($SeedSettingsArray)
+  unset IFS
+
+  DateStamp=${SeedSettingsArray[0]}
+  FS_SIZE=${SeedSettingsArray[1]}
+  if [[ -z $FS_SIZE ]]
+  then
+    FS_SIZE=$DEFAULT_FS_SIZE
+  fi
+
+  SOURCE_FS=${SeedSettingsArray[2]}
+  if [[ -z $SOURCE_FS ]]
+  then
+    SOURCE_FS=$DEFAULT_SOURCE_FS
+  fi
+
+  TARGET_FS=${SeedSettingsArray[3]}
+  if [[ -z $TARGET_FS ]]
+  then
+    TARGET_FS=$DEFAULT_TARGET_FS
+  fi
+fi
+
 
 
 #Count Number of files and folders made
