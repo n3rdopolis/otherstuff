@@ -136,13 +136,21 @@ function MountFSImage
   then
     mkfs."$FSType" -F -Q "$ImagePath"
     sudo mount -o loop  "$ImagePath" "$MountPath"
+    MountResult=$?
   elif [[ $FSType == fat ]]
   then
     mkfs."$FSType" "$ImagePath"
     sudo mount -o loop,rw,uid=$UID  "$ImagePath" "$MountPath"
+    MountResult=$?
   else
     mkfs."$FSType" "$ImagePath"
     sudo mount -o loop  "$ImagePath" "$MountPath"
+    MountResult=$?
+  fi
+  if [[ $MountResult != 0 ]]
+  then
+    echo "$ImagePath ( type: $FSType Size: $FSSize ) failed to mount at $MountPath"
+    exit
   fi
 }
 
