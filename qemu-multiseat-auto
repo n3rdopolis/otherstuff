@@ -6,4 +6,8 @@ qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga std -ena
 -device pci-bridge-seat,chassis_nr=3,id=head.3 \
 -device secondary-vga,bus=head.3,addr=05.0,id=video.3 \
 -device virtio-keyboard-pci,bus=head.3,addr=06.0,display=video.3 \
--device virtio-tablet-pci,bus=head.3,addr=7.0,display=video.3
+-device virtio-tablet-pci,bus=head.3,addr=7.0,display=video.3 \
+-device pci-bridge-seat,chassis_nr=4,id=head.4 \
+-device secondary-vga,bus=head.4,addr=05.0,id=video.4 \
+-device virtio-keyboard-pci,bus=head.4,addr=06.0,display=video.4 \
+-device virtio-tablet-pci,bus=head.4,addr=7.0,display=video.4 
