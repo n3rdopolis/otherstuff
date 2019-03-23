@@ -109,7 +109,7 @@ function getmountmap
     HASBINDS=0
     unset IFS
     SEARCH1FS=($SEARCH1FS)
-    printf -v SEARCH1MAJMIN ${SEARCH1FS[0]}    
+    printf -v SEARCH1MAJMIN ${SEARCH1FS[0]}
     printf -v SEARCH1FSROOT ${SEARCH1FS[1]}
     printf -v SEARCH1TARGET ${SEARCH1FS[2]}
     printf -v SEARCH1ID ${SEARCH1FS[3]}
