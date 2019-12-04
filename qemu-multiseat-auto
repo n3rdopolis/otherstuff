@@ -1,13 +1,40 @@
-qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga std -enable-kvm -display sdl \
+qemu-system-x86_64 -m 2047 -cdrom ~/RebeccaBlackOS_DevDbg_i386.iso -vga virtio -enable-kvm -display sdl \
 -device pci-bridge-seat,chassis_nr=2,id=head.2 \
--device secondary-vga,bus=head.2,addr=02.0,id=video.2 \
--device virtio-keyboard-pci,bus=head.2,addr=03.0,display=video.2 \
--device virtio-tablet-pci,bus=head.2,addr=4.0,display=video.2 \
+-device virtio-gpu-pci,bus=head.2,addr=02.0,id=video.2 \
+-device virtio-keyboard-pci,bus=head.2,display=video.2 \
+-device virtio-tablet-pci,bus=head.2,display=video.2 \
+\
 -device pci-bridge-seat,chassis_nr=3,id=head.3 \
--device secondary-vga,bus=head.3,addr=05.0,id=video.3 \
--device virtio-keyboard-pci,bus=head.3,addr=06.0,display=video.3 \
--device virtio-tablet-pci,bus=head.3,addr=7.0,display=video.3 \
+-device virtio-gpu-pci,bus=head.3,addr=03.0,id=video.3 \
+-device virtio-keyboard-pci,bus=head.3,display=video.3 \
+-device virtio-tablet-pci,bus=head.3,display=video.3 \
+\
 -device pci-bridge-seat,chassis_nr=4,id=head.4 \
--device secondary-vga,bus=head.4,addr=05.0,id=video.4 \
--device virtio-keyboard-pci,bus=head.4,addr=06.0,display=video.4 \
--device virtio-tablet-pci,bus=head.4,addr=7.0,display=video.4 
+-device virtio-gpu-pci,bus=head.4,addr=04.0,id=video.4 \
+-device virtio-keyboard-pci,bus=head.4,display=video.4 \
+-device virtio-tablet-pci,bus=head.4,display=video.4 \
+\
+-device pci-bridge-seat,chassis_nr=5,id=head.5 \
+-device virtio-gpu-pci,bus=head.5,addr=05.0,id=video.5 \
+-device virtio-keyboard-pci,bus=head.5,display=video.5 \
+-device virtio-tablet-pci,bus=head.5,display=video.5 \
+\
+-device pci-bridge-seat,chassis_nr=6,id=head.6 \
+-device virtio-gpu-pci,bus=head.6,addr=06.0,id=video.6 \
+-device virtio-keyboard-pci,bus=head.6,display=video.6 \
+-device virtio-tablet-pci,bus=head.6,display=video.6 \
+\
+-device pci-bridge-seat,chassis_nr=7,id=head.7 \
+-device virtio-gpu-pci,bus=head.7,addr=07.0,id=video.7 \
+-device virtio-keyboard-pci,bus=head.7,display=video.7 \
+-device virtio-tablet-pci,bus=head.7,display=video.7 \
+\
+-device pci-bridge-seat,chassis_nr=8,id=head.8 \
+-device virtio-gpu-pci,bus=head.8,addr=08.0,id=video.8 \
+-device virtio-keyboard-pci,bus=head.8,display=video.8 \
+-device virtio-tablet-pci,bus=head.8,display=video.8 \
+\
+-device pci-bridge-seat,chassis_nr=9,id=head.9 \
+-device virtio-gpu-pci,bus=head.9,addr=09.0,id=video.9 \
+-device virtio-keyboard-pci,bus=head.9,display=video.9 \
+-device virtio-tablet-pci,bus=head.9,display=video.9
