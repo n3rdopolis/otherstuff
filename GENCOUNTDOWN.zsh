@@ -21,18 +21,20 @@ STARTDATE=$(kdialog --calendar "Enter Start Date")
 STARTHOUR=$(kdialog --default "0 = 12AM" --combobox "Enter Start Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
 STARTMINUTE=$(kdialog --default 00 --combobox "Enter Start Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
 STARTSECOND=$(kdialog --default 00 --combobox "Enter Start Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-STARTTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
+#STARTTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
 ENDDATE=$(kdialog --calendar "Enter End Date")
 ENDHOUR=$(kdialog --default "0 = 12AM" --combobox "Enter End Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
 ENDMINUTE=$(kdialog --default 00 --combobox "Enter End Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
 ENDSECOND=$(kdialog  --default 00 --combobox "Enter End Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-ENDTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
+#ENDTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
 COUNTDOWNMESSAGE=$(kdialog --textinputbox "Enter Custom Message (optional)")
 
 
 START=$(date -d "$STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND" +"%s")
 END=$(date -d "$ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND" +"%s")
 
+str_STARTDATE=$(date -d @$START +"%Y-%m-%d %H:%M:%S %z")
+str_ENDDATE=$(date -d @$END +"%Y-%m-%d %H:%M:%S %z")
 
 NOW=$(date +"%s")
 RANGE=$((END-START))
@@ -122,7 +124,7 @@ printf -v str_ONEPERCENT_RANGE_TOTAL_YEARS "%.4f" $ONEPERCENT_RANGE_TOTAL_YEARS
 while [ 1 ]
 do
 NOW=$EPOCHSECONDS
-CURRENT=$(strftime  "%m/%d/%Y GMT%z %T" $EPOCHSECONDS)
+CURRENT=$(strftime  "%Y-%m-%d %H:%M:%S %z" $EPOCHSECONDS)
 
 SECONDS_LEFT=$((END-NOW))
 SECONDS_PASSED=$((RANGE-SECONDS_LEFT))
@@ -178,7 +180,7 @@ printf -v str_REMAINING_TOTAL_YEARS "%.4f" $REMAINING_TOTAL_YEARS
 
 
 
-printf -v TIMESTRING "%s" "Percent from $STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND to $ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND
+printf -v TIMESTRING "%s" "Percent from $str_STARTDATE to $str_ENDDATE
 
 It is currently: $CURRENT
 
