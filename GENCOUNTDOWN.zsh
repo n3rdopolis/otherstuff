@@ -17,31 +17,31 @@
 zmodload zsh/datetime
 
 DECIMALPLACES=4
-STARTDATE=$(kdialog --calendar "Enter Start Date")
-STARTHOUR=$(kdialog --default "0 = 12AM" --combobox "Enter Start Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
-STARTMINUTE=$(kdialog --default 00 --combobox "Enter Start Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-STARTSECOND=$(kdialog --default 00 --combobox "Enter Start Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-#STARTTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
-ENDDATE=$(kdialog --calendar "Enter End Date")
-ENDHOUR=$(kdialog --default "0 = 12AM" --combobox "Enter End Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
-ENDMINUTE=$(kdialog --default 00 --combobox "Enter End Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-ENDSECOND=$(kdialog  --default 00 --combobox "Enter End Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
-#ENDTIMEZONE=$(kdialog --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
-COUNTDOWNMESSAGE=$(kdialog --textinputbox "Enter Custom Message (optional)")
+STARTDATE=$(kdialog --title "Countdown" --calendar "Enter Start Date")
+STARTHOUR=$(kdialog --title "Countdown" --default "0 = 12AM" --combobox "Enter Start Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
+STARTMINUTE=$(kdialog --title "Countdown" --default 00 --combobox "Enter Start Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
+STARTSECOND=$(kdialog --title "Countdown" --default 00 --combobox "Enter Start Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
+#STARTTIMEZONE=$(kdialog --title "Countdown" --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
+ENDDATE=$(kdialog --title "Countdown" --calendar "Enter End Date")
+ENDHOUR=$(kdialog --title "Countdown" --default "0 = 12AM" --combobox "Enter End Hour" "0 = 12AM" "1 = 1AM" "2 = 2PM" "3 = 3AM" "4 = 4AM" "5 = 5AM" "6 = 6AM"  "7 = 7AM" "8 = 8AM" "9 = 9AM" "10 = 10AM" "11 = 11AM" "12 = 12PM" "13 = 1PM" "14 = 2PM" "15 = 3PM" "16 = 4PM" "17 = 5PM" "18 = 6PM" "19 = 7PM" "20 = 8PM" "21 = 9PM" "22 = 10PM" "23 = 11PM" | awk '{print $1}')
+ENDMINUTE=$(kdialog --title "Countdown" --default 00 --combobox "Enter End Minute" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
+ENDSECOND=$(kdialog  --title "Countdown" --default 00 --combobox "Enter End Second" 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59)
+#ENDTIMEZONE=$(kdialog --title "Countdown" --default " " --combobox "Enter Start Timezone (blank for local/optional) You can use http://wwp.greenwichmeantime.com/ to find a location's offest" " " "GMT-12" "GMT-11" "GMT-10" "GMT-9:30" "GMT-9" "GMT-8" "GMT-7" "GMT-6" "GMT-5" "GMT-4:30" "GMT-4" "GMT-3:30" "GMT-3" "GMT-2" "GMT-1" "GMT-0" "GMT+0" "GMT+1" "GMT+2" "GMT+3" "GMT+3:30" "GMT+4" "GMT+4:30" "GMT+5" "GMT+5:30" "GMT+5:45" "GMT+6" "GMT+6:30" "GMT+7" "GMT+8" "GMT+8:45" "GMT+9" "GMT+9:30" "GMT+10" "GMT+10:30" "GMT+11" "GMT+11:30" "GMT+12" "GMT+12:45" "GMT+13" "GMT+14" )
+COUNTDOWNMESSAGE=$(kdialog --title "Countdown" --textinputbox "Enter Custom Message (optional)")
 
 
 START=$(date -d "$STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND" +"%s")
 END=$(date -d "$ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND" +"%s")
 
-str_STARTDATE=$(date -d @$START +"%Y-%m-%d %H:%M:%S %z")
-str_ENDDATE=$(date -d @$END +"%Y-%m-%d %H:%M:%S %z")
+str_STARTDATE=$(date -d @$START +"%a %Y-%m-%d %H:%M:%S %z")
+str_ENDDATE=$(date -d @$END +"%a %Y-%m-%d %H:%M:%S %z")
 
 NOW=$(date +"%s")
 RANGE=$((END-START))
 
 if [ $RANGE -le 0 ]
 then
-kdialog --sorry "End date is before or the same as the start date
+kdialog --title "Countdown" --sorry "End date is before or the same as the start date
 
 $STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND to $ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND"
 exit
@@ -49,7 +49,7 @@ fi
 
 
 IFS=" "
-dcopRef=($(kdialog  --icon ktimer --progressbar "Countdown")) 
+dcopRef=($(kdialog  --title "Countdown" --icon ktimer --progressbar "Countdown")) 
 unset IFS
 
 SECONDS_LEFT=$((END-NOW))
@@ -60,7 +60,7 @@ LEFT_PERCENT=$(( 100 -(SECONDS_PASSED*1.0 * 100 / RANGE) ))
 
 if [[ $PASSED_PERCENT -gt 100 ]]
 then
-kdialog --msgbox "End date is in the past
+kdialog --title "Countdown" --msgbox "End date is in the past
 
 $STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND to $ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND
 " &
@@ -68,7 +68,7 @@ qdbus ${dcopRef[1]} ${dcopRef[2]} org.freedesktop.DBus.Properties.Set org.kde.kd
 fi
 if [[ $PASSED_PERCENT -lt 0 ]]
 then
-kdialog --msgbox "Start date is in the future
+kdialog --title "Countdown" --msgbox "Start date is in the future
 $STARTDATE $STARTTIMEZONE $STARTHOUR:$STARTMINUTE:$STARTSECOND to $ENDDATE $ENDTIMEZONE $ENDHOUR:$ENDMINUTE:$ENDSECOND
 " &
 qdbus ${dcopRef[1]} ${dcopRef[2]} org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value 100  >  /dev/null 2>&1
@@ -124,7 +124,7 @@ printf -v str_ONEPERCENT_RANGE_TOTAL_YEARS "%.4f" $ONEPERCENT_RANGE_TOTAL_YEARS
 while [ 1 ]
 do
 NOW=$EPOCHSECONDS
-CURRENT=$(strftime  "%Y-%m-%d %H:%M:%S %z" $EPOCHSECONDS)
+CURRENT=$(strftime  "%a %Y-%m-%d %H:%M:%S %z" $EPOCHSECONDS)
 
 SECONDS_LEFT=$((END-NOW))
 SECONDS_PASSED=$((RANGE-SECONDS_LEFT))
@@ -231,7 +231,7 @@ fi
 LEFT_PERCENT=$(( 100 -(SECONDS_PASSED*1.0 * 100 / RANGE) ))
 if [[  $PASSED_PERCENT -gt 100 && $completed -eq 0 ]] 
 then
-kdialog --msgbox "End date reached." &
+kdialog --title "Countdown" --msgbox "End date reached." &
 qdbus ${dcopRef[1]} ${dcopRef[2]} org.freedesktop.DBus.Properties.Set org.kde.kdialog.ProgressDialog value 100  > /dev/null 2>&1
 completed=1
 fi
